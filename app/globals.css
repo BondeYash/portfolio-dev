@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --canvas: 243 241 236;
+  --ink: 18 18 20;
+  --muted: 92 90 86;
+  --line: 28 27 25;
+  --panel: 255 253 248;
+  --accent: 37 99 235;
+  --accent-dim: 191 219 254;
+}
+
+.dark {
+  color-scheme: dark;
+  --canvas: 10 10 11;
+  --ink: 244 244 245;
+  --muted: 161 161 168;
+  --line: 232 232 236;
+  --panel: 17 17 19;
+  --accent: 77 139 255;
+  --accent-dim: 30 58 95;
+}
+
+* {
+  border-color: rgb(var(--line) / 0.12);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  background: rgb(var(--canvas));
+  color: rgb(var(--ink));
+}
+
+body {
+  font-feature-settings: "ss01" on, "cv11" on;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgb(var(--accent) / 0.28);
+  color: rgb(var(--ink));
+}
+
+:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 3px;
+}
+
+.noise::before {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: theme("backgroundImage.grain");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

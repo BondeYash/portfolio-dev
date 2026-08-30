@@ -1,0 +1,46 @@
+/** GitHub Linguist language colors for languages that show up on typical repos. */
+export const LANGUAGE_COLORS: Record<string, string> = {
+  JavaScript: "#f1e05a",
+  TypeScript: "#3178c6",
+  Python: "#3572A5",
+  Solidity: "#AA6746",
+  HTML: "#e34c26",
+  CSS: "#563d7c",
+  SCSS: "#c6538c",
+  Vue: "#41b883",
+  Java: "#b07219",
+  "C++": "#f34b7d",
+  C: "#555555",
+  Go: "#00ADD8",
+  Rust: "#dea584",
+  Ruby: "#701516",
+  PHP: "#4F5D95",
+  Shell: "#89e051",
+  Dockerfile: "#384d54",
+  Markdown: "#083fa1",
+  JSON: "#292929",
+  Kotlin: "#A97BFF",
+  Swift: "#F05138",
+  Dart: "#00B4AB",
+  Haskell: "#5e5086",
+  Elixir: "#6e4a7e",
+  Scala: "#c22d40",
+  "C#": "#178600",
+  R: "#198CE7",
+  Lua: "#000080",
+  Perl: "#0298c3",
+  Clojure: "#db5855",
+  EmacsLisp: "#c065db",
+  Vimscript: "#199f4b",
+  Makefile: "#427819",
+  CMake: "#DA3434",
+  Assembly: "#6E4C13",
+  ObjectiveC: "#438eff",
+  JupyterNotebook: "#DA5B0B",
+  "Jupyter Notebook": "#DA5B0B",
+};
+
+export function languageColor(language: string | null): string {
+  if (!language) return "#8b8b90";
+  return LANGUAGE_COLORS[language] ?? "#8b8b90";
+}
