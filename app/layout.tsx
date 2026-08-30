@@ -1,35 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
-import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
-import { profile } from "@/data/profile";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
+import { profile, skillKeywords } from "@/data/profile";
 import "./globals.css";
-
-const display = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-});
-
-const body = Inter({
-  subsets: ["latin"],
-  variable: "--font-body",
-  display: "swap",
-});
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${profile.fullName} — ${profile.role}`,
-    template: `%s — ${profile.name}`,
+    default: `${profile.fullName} | ${profile.role}`,
+    template: `%s | ${profile.name}`,
   },
   description: profile.subheading,
-  keywords: [...profile.skills],
+  keywords: [...skillKeywords],
   authors: [{ name: profile.fullName, url: profile.github }],
   openGraph: {
-    title: `${profile.fullName} — ${profile.role}`,
+    title: `${profile.fullName} | ${profile.role}`,
     description: profile.subheading,
     url: siteUrl,
     siteName: profile.fullName,
@@ -38,7 +26,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${profile.fullName} — ${profile.role}`,
+    title: `${profile.fullName} | ${profile.role}`,
     description: profile.subheading,
   },
   robots: { index: true, follow: true },
@@ -46,8 +34,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0b" },
-    { media: "(prefers-color-scheme: light)", color: "#f3f1ec" },
+    { media: "(prefers-color-scheme: dark)", color: "#070b16" },
+    { media: "(prefers-color-scheme: light)", color: "#ecf3ff" },
   ],
 };
 
@@ -61,12 +49,11 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
       </head>
-      <body
-        className={`${display.variable} ${body.variable} noise font-sans antialiased`}
-      >
+      <body className="noise flex min-h-screen flex-col font-sans antialiased">
         <Providers>
-          <Navbar />
-          {children}
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
         </Providers>
       </body>
     </html>

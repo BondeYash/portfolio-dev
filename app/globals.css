@@ -4,28 +4,32 @@
 
 :root {
   color-scheme: light;
-  --canvas: 243 241 236;
-  --ink: 18 18 20;
-  --muted: 92 90 86;
-  --line: 28 27 25;
-  --panel: 255 253 248;
+  --canvas: 236 243 255;
+  --ink: 15 23 42;
+  --muted: 71 85 120;
+  --line: 37 99 235;
+  --panel: 255 252 248;
   --accent: 37 99 235;
   --accent-dim: 191 219 254;
+  --cyan: 8 145 178;
+  --violet: 124 58 237;
 }
 
 .dark {
   color-scheme: dark;
-  --canvas: 10 10 11;
-  --ink: 244 244 245;
-  --muted: 161 161 168;
-  --line: 232 232 236;
-  --panel: 17 17 19;
-  --accent: 77 139 255;
-  --accent-dim: 30 58 95;
+  --canvas: 7 11 22;
+  --ink: 241 245 255;
+  --muted: 148 163 196;
+  --line: 125 170 255;
+  --panel: 14 22 42;
+  --accent: 96 165 250;
+  --accent-dim: 30 64 175;
+  --cyan: 34 211 238;
+  --violet: 196 181 253;
 }
 
 * {
-  border-color: rgb(var(--line) / 0.12);
+  border-color: rgb(var(--line) / 0.16);
 }
 
 html {
@@ -34,17 +38,24 @@ html {
 
 html,
 body {
-  background: rgb(var(--canvas));
   color: rgb(var(--ink));
 }
 
 body {
   font-feature-settings: "ss01" on, "cv11" on;
   text-rendering: optimizeLegibility;
+  font-size: 1.125rem;
+  line-height: 1.65;
+  background-color: rgb(var(--canvas));
+  background-image:
+    radial-gradient(1100px 520px at 8% -8%, rgb(var(--accent) / 0.28), transparent 52%),
+    radial-gradient(900px 480px at 100% 4%, rgb(var(--violet) / 0.18), transparent 48%),
+    radial-gradient(820px 420px at 70% 110%, rgb(var(--cyan) / 0.14), transparent 50%);
+  background-attachment: scroll;
 }
 
 ::selection {
-  background: rgb(var(--accent) / 0.28);
+  background: rgb(var(--accent) / 0.32);
   color: rgb(var(--ink));
 }
 
@@ -59,9 +70,50 @@ body {
   position: fixed;
   inset: 0;
   z-index: 50;
-  opacity: 0.045;
+  opacity: 0.04;
   mix-blend-mode: overlay;
   background-image: theme("backgroundImage.grain");
+}
+
+.surface-card {
+  background:
+    linear-gradient(180deg, rgb(var(--accent) / 0.08), transparent 42%),
+    rgb(var(--panel) / 0.86);
+  backdrop-filter: blur(16px);
+}
+
+@layer components {
+  .type-label {
+    @apply font-mono text-base uppercase tracking-[0.12em];
+  }
+
+  .type-body {
+    @apply text-lg leading-relaxed;
+  }
+
+  .type-lede {
+    @apply text-xl leading-relaxed;
+  }
+
+  .type-card {
+    @apply font-serif text-2xl tracking-tight;
+  }
+
+  .type-section {
+    @apply font-serif text-3xl tracking-tight sm:text-4xl;
+  }
+
+  .type-page {
+    @apply font-serif text-4xl tracking-tight sm:text-5xl;
+  }
+
+  .type-hero {
+    @apply font-serif text-5xl font-semibold leading-[0.95] tracking-tight sm:text-6xl lg:text-7xl;
+  }
+
+  .type-btn {
+    @apply text-base font-medium;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

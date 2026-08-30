@@ -39,6 +39,7 @@ async function githubGet<T>(path: string): Promise<T> {
   const response = await fetch(`https://api.github.com${path}`, {
     headers,
     next: { revalidate: REVALIDATE_SECONDS },
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!response.ok) {
