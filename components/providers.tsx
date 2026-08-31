@@ -1,12 +1,7 @@
 "use client";
 
-import { MotionConfig } from "framer-motion";
-import { ThemeProvider } from "@/components/theme-provider";
+import { EditionProvider } from "@/components/edition-provider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <ThemeProvider>
-      <MotionConfig reducedMotion="user">{children}</MotionConfig>
-    </ThemeProvider>
-  );
+  return <EditionProvider>{children}</EditionProvider>;
 }

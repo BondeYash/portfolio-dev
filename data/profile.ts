@@ -1,18 +1,31 @@
 export const GITHUB_USERNAME = "BondeYash";
 
 export const nav = [
-  { href: "/", label: "Index" },
-  { href: "/about", label: "About" },
-  { href: "/work", label: "Work" },
-  { href: "/experience", label: "Experience" },
-  { href: "/contact", label: "Contact" },
+  { href: "/", label: "Front Page", folio: "A1" },
+  { href: "/edition", label: "The Edition", folio: "A2" },
+  { href: "/about", label: "Profile", folio: "A3" },
+  { href: "/work", label: "Technology", folio: "A5" },
+  { href: "/experience", label: "Business", folio: "A7" },
+  { href: "/contact", label: "Classifieds", folio: "A9" },
 ] as const;
+
+/** Masthead furniture — the fixed print identity of the paper. */
+export const paper = {
+  title: "Yash Times",
+  motto: "All the Code That's Fit to Ship",
+  city: "Surat, Gujarat",
+  volume: "Vol. MMXXVI",
+  number: "No. 1",
+  price: "Price: Free — Open Source",
+  established: "Est. 2020",
+  wire: "BONDE NEWS SERVICE",
+} as const;
 
 export const profile = {
   name: "Yash Bonde",
   fullName: "Yash Bonde",
   role: "Full Stack Engineer",
-  location: "Pune, Maharashtra, India",
+  location: "Surat, Gujarat, India",
   phone: "+91-8849552884",
   phoneHref: "tel:+918849552884",
   email: "yashbonde21@gmail.com",
@@ -29,8 +42,8 @@ export const profile = {
    * "APIs with manners. Interfaces with spine."
    */
   subheading:
-    "Full-stack developer in Pune building healthcare AI, multi-tenant backends, and RAG pipelines. Node, Spring, and Next.js, with the tests to match.",
-  bio: "I'm Yash Bonde, a full-stack developer in Pune. I completed my Bachelor of Engineering in Computer Engineering at Government Engineering College Dahod. I currently build an AI healthcare management product at Empiric Infotech. Before that I shipped Node.js and TypeScript services at Freshcodes. I care about systems that stay coherent under load: REST APIs, ledgers, agents, and the interfaces people actually use.",
+    "Full-stack developer in Surat building healthcare AI, multi-tenant backends, and RAG pipelines. Node, Spring, and Next.js, with the tests to match.",
+  bio: "I'm Yash Bonde, a full-stack developer in Surat. I completed my Bachelor of Engineering in Computer Engineering at Government Engineering College Dahod. I currently build an AI healthcare management product at Empiric Infotech. Before that I shipped Node.js and TypeScript services at Freshcodes. I care about systems that stay coherent under load: REST APIs, ledgers, agents, and the interfaces people actually use.",
   skillGroups: [
     {
       label: "Languages",
@@ -122,7 +135,7 @@ export const profile = {
       company: "Freshcodes Technology",
       role: "Node.js Developer",
       duration: "Nov 2025 - March 2026",
-      location: "Pune, Maharashtra, India",
+      location: "Surat, Gujarat, India",
       bullets: [
         "Developed and maintained server-side applications and REST APIs using Node.js, Express.js, and TypeScript.",
         "Built microservice-based backend components and applied code-quality, testing, and deployment-automation practices for enterprise applications.",

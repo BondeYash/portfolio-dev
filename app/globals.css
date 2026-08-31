@@ -2,123 +2,533 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   THE BONDE TIMES — newsprint design system
+   Day edition (default) / Night edition (.dark)
+   ============================================================ */
+
 :root {
   color-scheme: light;
-  --canvas: 236 243 255;
-  --ink: 15 23 42;
-  --muted: 71 85 120;
-  --line: 37 99 235;
-  --panel: 255 252 248;
-  --accent: 37 99 235;
-  --accent-dim: 191 219 254;
-  --cyan: 8 145 178;
-  --violet: 124 58 237;
+  --paper: 243 238 226;
+  --stock: 233 226 209;
+  --ink: 23 20 16;
+  --faded: 88 79 64;
+  --rule: 32 27 21;
+  --spot: 168 33 27;
+  --press: 30 58 92;
+  --desk: 206 197 180;
+  --grain: 0.05;
+  --fiber: 0.05;
+  --vignette: 0.1;
 }
 
 .dark {
   color-scheme: dark;
-  --canvas: 7 11 22;
-  --ink: 241 245 255;
-  --muted: 148 163 196;
-  --line: 125 170 255;
-  --panel: 14 22 42;
-  --accent: 96 165 250;
-  --accent-dim: 30 64 175;
-  --cyan: 34 211 238;
-  --violet: 196 181 253;
+  --paper: 18 17 15;
+  --stock: 27 25 22;
+  --ink: 235 229 215;
+  --faded: 154 145 129;
+  --rule: 205 196 178;
+  --spot: 226 96 78;
+  --press: 138 175 219;
+  --desk: 9 9 8;
+  --grain: 0.07;
+  --fiber: 0.09;
+  --vignette: 0.42;
 }
 
 * {
-  border-color: rgb(var(--line) / 0.16);
+  border-color: rgb(var(--rule) / 0.9);
 }
 
 html {
   scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
 }
 
-html,
 body {
   color: rgb(var(--ink));
-}
-
-body {
-  font-feature-settings: "ss01" on, "cv11" on;
+  background-color: rgb(var(--paper));
+  font-feature-settings: "kern" on, "liga" on, "onum" on;
   text-rendering: optimizeLegibility;
-  font-size: 1.125rem;
-  line-height: 1.65;
-  background-color: rgb(var(--canvas));
-  background-image:
-    radial-gradient(1100px 520px at 8% -8%, rgb(var(--accent) / 0.28), transparent 52%),
-    radial-gradient(900px 480px at 100% 4%, rgb(var(--violet) / 0.18), transparent 48%),
-    radial-gradient(820px 420px at 70% 110%, rgb(var(--cyan) / 0.14), transparent 50%);
-  background-attachment: scroll;
 }
 
 ::selection {
-  background: rgb(var(--accent) / 0.32);
+  background: rgb(var(--spot) / 0.28);
   color: rgb(var(--ink));
 }
 
 :focus-visible {
-  outline: 2px solid rgb(var(--accent));
-  outline-offset: 3px;
+  outline: 2px solid rgb(var(--spot));
+  outline-offset: 2px;
 }
 
-.noise::before {
+/* ---------- Paper stock ------------------------------------- */
+
+.newsprint {
+  position: relative;
+  isolation: isolate;
+}
+
+.newsprint::before,
+.newsprint::after {
   content: "";
-  pointer-events: none;
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: 50;
-  opacity: 0.04;
-  mix-blend-mode: overlay;
-  background-image: theme("backgroundImage.grain");
+  pointer-events: none;
+  z-index: 2;
 }
 
-.surface-card {
-  background:
-    linear-gradient(180deg, rgb(var(--accent) / 0.08), transparent 42%),
-    rgb(var(--panel) / 0.86);
-  backdrop-filter: blur(16px);
+/* paper grain */
+.newsprint::before {
+  opacity: var(--grain);
+  background-image: theme("backgroundImage.newsprint");
+  mix-blend-mode: multiply;
 }
+
+/* pulp fibers + edge vignette (aged sheet) */
+.newsprint::after {
+  opacity: 1;
+  background-image:
+    radial-gradient(
+      140% 100% at 50% 50%,
+      transparent 55%,
+      rgb(var(--rule) / var(--vignette)) 100%
+    );
+  mix-blend-mode: multiply;
+}
+
+.dark .newsprint::before,
+.dark .newsprint::after {
+  mix-blend-mode: screen;
+}
+
+.fiber {
+  background-image: theme("backgroundImage.fibers");
+  opacity: var(--fiber);
+  mix-blend-mode: multiply;
+}
+
+.dark .fiber {
+  mix-blend-mode: screen;
+}
+
+/* The desk the paper lies on. */
+.desk {
+  background-color: rgb(var(--desk));
+  background-image: radial-gradient(
+    120% 90% at 50% 0%,
+    rgb(var(--paper) / 0.14),
+    transparent 62%
+  );
+}
+
+.sheet {
+  background-color: rgb(var(--paper));
+  box-shadow:
+    0 0 0 1px rgb(var(--rule) / 0.28),
+    0 30px 80px -40px rgb(0 0 0 / 0.75);
+}
+
+/* ---------- Rules ------------------------------------------- */
+
+.rule-hair {
+  border-bottom: 1px solid rgb(var(--rule) / 0.55);
+}
+
+.rule-thin {
+  border-bottom: 2px solid rgb(var(--rule));
+}
+
+.rule-thick {
+  border-bottom: 6px solid rgb(var(--rule));
+}
+
+.rule-double {
+  border-top: 1px solid rgb(var(--rule));
+  border-bottom: 4px solid rgb(var(--rule));
+  height: 6px;
+}
+
+.rule-dotted {
+  border-bottom: 2px dotted rgb(var(--rule) / 0.6);
+}
+
+/* ---------- Typography -------------------------------------- */
 
 @layer components {
-  .type-label {
-    @apply font-mono text-base uppercase tracking-[0.12em];
+  .masthead {
+    @apply font-masthead leading-[0.86];
+    letter-spacing: 0.01em;
   }
 
-  .type-body {
-    @apply text-lg leading-relaxed;
+  .hed {
+    @apply font-hed font-black leading-[0.92] tracking-[-0.015em];
+    text-wrap: balance;
   }
 
-  .type-lede {
-    @apply text-xl leading-relaxed;
+  .dek {
+    @apply font-hed text-lg italic leading-snug text-ink/85 sm:text-xl;
+    text-wrap: pretty;
   }
 
-  .type-card {
-    @apply font-serif text-2xl tracking-tight;
+  .kicker {
+    @apply font-cond text-[0.68rem] font-semibold uppercase tracking-news text-spot;
   }
 
-  .type-section {
-    @apply font-serif text-3xl tracking-tight sm:text-4xl;
+  .slug {
+    @apply font-cond text-[0.7rem] font-medium uppercase tracking-wide2 text-faded;
   }
 
-  .type-page {
-    @apply font-serif text-4xl tracking-tight sm:text-5xl;
+  .byline {
+    @apply font-cond text-[0.72rem] uppercase tracking-news text-ink;
   }
 
-  .type-hero {
-    @apply font-serif text-5xl font-semibold leading-[0.95] tracking-tight sm:text-6xl lg:text-7xl;
+  .prose-col {
+    @apply font-body text-[0.98rem] leading-[1.52] text-ink/90;
+    hyphens: auto;
+    text-align: justify;
+    -webkit-hyphens: auto;
   }
 
-  .type-btn {
-    @apply text-base font-medium;
+  .prose-col p + p {
+    text-indent: 1.1em;
+    margin-top: 0;
+  }
+
+  .lede {
+    @apply font-body text-[1.05rem] leading-[1.55] text-ink;
+  }
+
+  .caption {
+    @apply font-cond text-[0.7rem] uppercase tracking-wide text-faded;
+  }
+
+  .stamp {
+    @apply font-type text-[0.7rem] uppercase tracking-news;
+  }
+
+  .cols-2 {
+    column-count: 2;
+    column-gap: 1.6rem;
+    column-rule: 1px solid rgb(var(--rule) / 0.4);
+  }
+
+  .cols-3 {
+    column-count: 3;
+    column-gap: 1.6rem;
+    column-rule: 1px solid rgb(var(--rule) / 0.4);
+  }
+
+  .cols-4 {
+    column-count: 4;
+    column-gap: 1.5rem;
+    column-rule: 1px solid rgb(var(--rule) / 0.4);
+  }
+
+  .col-break-avoid {
+    break-inside: avoid;
+  }
+
+  /* ---- type scale for a bound edition page (380 x 543 canvas) ---- */
+
+  .pg {
+    @apply flex h-full w-full flex-col;
+  }
+
+  .pg-kicker {
+    @apply font-cond text-[8px] font-semibold uppercase tracking-news text-spot;
+  }
+
+  .pg-hed {
+    @apply font-hed font-black leading-[0.95] tracking-[-0.012em];
+    text-wrap: balance;
+  }
+
+  .pg-dek {
+    @apply font-hed text-[11px] italic leading-[1.25];
+  }
+
+  .pg-copy {
+    @apply font-body text-[11.5px] leading-[1.45] text-ink/90;
+    text-align: justify;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+  }
+
+  .pg-slug {
+    @apply font-cond text-[7.5px] uppercase tracking-wide2 text-faded;
+  }
+
+  .pg-label {
+    @apply font-cond text-[8.5px] font-medium uppercase tracking-news;
+  }
+
+  .pg-cols {
+    column-count: 2;
+    column-gap: 12px;
+    column-rule: 1px solid rgb(var(--rule) / 0.35);
   }
 }
+
+.pg-drop::first-letter {
+  float: left;
+  font-family: var(--font-hed), Georgia, serif;
+  font-weight: 900;
+  font-size: 2.9em;
+  line-height: 0.76;
+  padding: 0.05em 0.08em 0 0;
+}
+
+.dropcap::first-letter {
+  float: left;
+  font-family: var(--font-hed), Georgia, serif;
+  font-weight: 900;
+  font-size: 3.35em;
+  line-height: 0.78;
+  padding: 0.06em 0.09em 0 0;
+  margin-right: 0.03em;
+  color: rgb(var(--ink));
+}
+
+.smallcaps {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.08em;
+}
+
+/* Ink spread — cheap paper absorbs a little */
+.ink-bleed {
+  text-shadow: 0 0 0.6px rgb(var(--ink) / 0.5);
+}
+
+/* Second-colour press run, slightly misregistered */
+.misregister {
+  color: rgb(var(--spot));
+  text-shadow: 0.8px -0.4px 0 rgb(var(--press) / 0.22);
+}
+
+/* ---------- Halftone photo treatment ------------------------ */
+
+.halftone {
+  position: relative;
+  filter: grayscale(1) contrast(1.28) brightness(1.02);
+  background-color: rgb(var(--stock));
+}
+
+.halftone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    rgb(var(--ink) / 0.55) 32%,
+    transparent 33%
+  );
+  background-size: var(--dot, 3.5px) var(--dot, 3.5px);
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+}
+
+.dark .halftone {
+  filter: grayscale(1) contrast(1.15) brightness(0.82) invert(0.06);
+}
+
+.dark .halftone::after {
+  mix-blend-mode: screen;
+  opacity: 0.35;
+}
+
+/* ---------- Boxes ------------------------------------------- */
+
+.boxed {
+  border: 2px solid rgb(var(--rule));
+  background: rgb(var(--stock) / 0.55);
+}
+
+.hairbox {
+  border: 1px solid rgb(var(--rule) / 0.6);
+}
+
+.pullquote {
+  border-top: 3px solid rgb(var(--rule));
+  border-bottom: 3px solid rgb(var(--rule));
+}
+
+/* ---------- Ticker ------------------------------------------ */
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+/* ---------- Flipbook 3D ------------------------------------- */
+
+.book-stage {
+  perspective: 2800px;
+  perspective-origin: 50% 44%;
+}
+
+.leaf {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  backface-visibility: visible;
+  will-change: transform;
+}
+
+.leaf-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: rgb(var(--paper));
+  box-shadow: inset 0 0 0 1px rgb(var(--rule) / 0.35);
+}
+
+.leaf-face--back {
+  transform: rotateY(180deg);
+}
+
+/* shading that sweeps across a turning leaf */
+.leaf-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+  opacity: 0;
+}
+
+.leaf-shade--front {
+  background: linear-gradient(
+    to left,
+    rgb(0 0 0 / 0.55) 0%,
+    rgb(0 0 0 / 0.16) 42%,
+    transparent 78%
+  );
+}
+
+.leaf-shade--back {
+  background: linear-gradient(
+    to right,
+    rgb(0 0 0 / 0.55) 0%,
+    rgb(0 0 0 / 0.16) 42%,
+    transparent 78%
+  );
+}
+
+/* gutter shadow at the spine */
+.gutter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 9%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 30;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgb(0 0 0 / 0.2) 42%,
+    rgb(0 0 0 / 0.3) 50%,
+    rgb(0 0 0 / 0.2) 58%,
+    transparent
+  );
+  mix-blend-mode: multiply;
+}
+
+.dark .gutter {
+  mix-blend-mode: normal;
+  opacity: 0.75;
+}
+
+/* the corner a reader grabs */
+.peel {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 84px;
+  height: 84px;
+  z-index: 20;
+  cursor: pointer;
+  background: linear-gradient(
+    315deg,
+    rgb(var(--stock)) 0%,
+    rgb(var(--stock)) 46%,
+    rgb(var(--rule) / 0.45) 47%,
+    transparent 48%
+  );
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  transform: translate(28%, 28%);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: drop-shadow(-4px -4px 8px rgb(0 0 0 / 0.28));
+}
+
+.peel:hover,
+.peel:focus-visible {
+  transform: translate(0, 0);
+}
+
+/* ---------- Misc utilities ---------------------------------- */
+
+.vrule {
+  border-left: 1px solid rgb(var(--rule) / 0.4);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.link-news {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: rgb(var(--spot) / 0.6);
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.link-news:hover {
+  color: rgb(var(--spot));
+  text-decoration-color: rgb(var(--spot));
+}
+
+/* Content ships visible; a JS-capable document hides reveal targets
+   before first paint so they can be inked in on scroll. Readers without
+   JavaScript keep the whole paper. */
+.js [data-reveal] {
+  opacity: 0;
+}
+
+/* ---------- Scrollbar --------------------------------------- */
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(var(--stock));
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--rule) / 0.55);
+  border: 3px solid rgb(var(--stock));
+}
+
+/* ---------- Motion preferences ------------------------------ */
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .js [data-reveal] {
+    opacity: 1;
   }
 
   *,
@@ -127,5 +537,23 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Print — it is a newspaper, after all ------------ */
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .newsprint::before,
+  .newsprint::after {
+    display: none;
   }
 }

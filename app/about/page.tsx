@@ -1,84 +1,120 @@
 import type { Metadata } from "next";
-import { PageIntro } from "@/components/page-intro";
-import { PageShell } from "@/components/page-shell";
+import Image from "next/image";
+import { Brief, PullQuote, Rule } from "@/components/paper/primitives";
+import { TearSheet } from "@/components/paper/tear-sheet";
 import { profile } from "@/data/profile";
+import { getGithubPortfolio } from "@/lib/github";
 
 export const metadata: Metadata = {
-  title: "About",
+  title: "Profile",
   description: profile.bio,
 };
 
-export default function AboutPage() {
+export const revalidate = 43200;
+
+export default async function AboutPage() {
+  const { profile: gh } = await getGithubPortfolio();
+
   return (
-    <PageShell>
-      <PageIntro
-        index="01"
-        kicker="About"
-        title="Full-stack developer who likes systems that stay honest."
-        lede={profile.bio}
-      />
-      <section className="grid gap-16 lg:grid-cols-[0.9fr_1.1fr]">
+    <TearSheet
+      section="Profile"
+      folio="A3"
+      kicker="The Profile · Page Three"
+      hed="A Developer Who Tests His Own Ledgers"
+      dek={profile.subheading}
+    >
+      <div className="grid gap-6 lg:grid-cols-[15rem_1fr] lg:gap-8">
+        <figure data-reveal className="col-break-avoid">
+          <div className="halftone relative aspect-[3/4] w-full overflow-hidden border-2 border-rule">
+            <Image
+              src={gh.avatarUrl}
+              alt={profile.fullName}
+              fill
+              sizes="(min-width: 1024px) 15rem, 60vw"
+              className="object-cover"
+            />
+          </div>
+          <figcaption className="caption mt-1.5">
+            {profile.fullName}, {profile.role}, {profile.location}.
+          </figcaption>
+        </figure>
+
         <div>
-          <h2 className="type-label text-cyan">
-            Education
-          </h2>
-          <ul className="mt-6 space-y-8">
-            {profile.education.map((item) => (
-              <li key={item.school} className="rounded-2xl border border-accent/15 bg-panel/80 p-5">
-                <p className="type-label text-cyan">
-                  {item.duration} · {item.location}
-                </p>
-                <h3 className="type-card mt-2 leading-snug">
-                  {item.school}
-                </h3>
-                <p className="type-body mt-2 text-muted">
-                  {item.degree}. {item.detail}
-                </p>
-              </li>
-            ))}
-          </ul>
+          <div className="cols-2">
+            <p className="prose-col dropcap" data-reveal>
+              {profile.bio}
+            </p>
+            <PullQuote attribution={`${profile.fullName}, on the record`}>
+              {profile.tagline}
+            </PullQuote>
+            <p className="prose-col" data-reveal>
+              The through-line across his work is a preference for systems that
+              stay coherent under load: immutable ledgers, deterministic lock
+              ordering, retrieval pipelines with fact-check gates, and test
+              suites that run before anything reaches a user.
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="type-label text-violet">
-            Recognition
-          </h2>
-          <ul className="mt-6 space-y-3">
-            {profile.certifications.map((item) => (
-              <li
-                key={item}
-                className="type-body rounded-xl border border-violet/20 bg-violet/10 px-4 py-3 text-ink"
-              >
-                {item}
-              </li>
-            ))}
-          </ul>
+      </div>
+
+      <section className="mt-10">
+        <p className="kicker">Schooling</p>
+        <Rule weight="thin" className="mt-1.5" />
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          {profile.education.map((item) => (
+            <Brief
+              key={item.school}
+              head={item.school}
+              meta={`${item.duration} · ${item.location}`}
+            >
+              <p className="prose-col !text-left">{item.degree}.</p>
+              <p className="mt-1.5 font-cond text-[0.76rem] uppercase tracking-news text-spot">
+                {item.detail}
+              </p>
+            </Brief>
+          ))}
         </div>
       </section>
-      <section className="mt-20">
-          <h2 className="type-label text-accent">
-            Technical skills
-          </h2>
-        <div className="mt-8 grid gap-8 md:grid-cols-2">
-          {profile.skillGroups.map((group, index) => {
-            const tones = [
-              "border-accent/40 bg-accent/10",
-              "border-cyan/40 bg-cyan/10",
-              "border-violet/40 bg-violet/10",
-            ] as const;
-            return (
+
+      <section className="mt-10">
+        <p className="kicker">Honours &amp; Certifications</p>
+        <Rule weight="thin" className="mt-1.5" />
+        <ul className="mt-4 cols-2 lg:columns-3">
+          {profile.certifications.map((item) => (
+            <li
+              key={item}
+              data-reveal
+              className="prose-col col-break-avoid mb-2 !text-left"
+            >
+              <span aria-hidden="true" className="text-spot">
+                &#9670;{" "}
+              </span>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="mt-10">
+        <p className="kicker">The Type Case</p>
+        <Rule weight="thin" className="mt-1.5" />
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {profile.skillGroups.map((group) => (
             <article
               key={group.label}
-              className={`rounded-2xl border p-6 ${tones[index % tones.length]}`}
+              data-reveal
+              className="col-break-avoid border-b-2 border-rule pb-3"
             >
-              <h3 className="type-card">{group.label}</h3>
-              <p className="type-body mt-3 text-muted">
+              <h3 className="font-cond text-sm font-semibold uppercase tracking-news">
+                {group.label}
+              </h3>
+              <p className="prose-col mt-1.5 !text-left !text-[0.9rem]">
                 {group.items.join(" · ")}
               </p>
             </article>
-            );
-          })}
+          ))}
         </div>
       </section>
-    </PageShell>
+    </TearSheet>
   );
 }
