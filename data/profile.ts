@@ -2,7 +2,7 @@ export const GITHUB_USERNAME = "BondeYash";
 
 export const nav = [
   { href: "/", label: "Front Page", folio: "A1" },
-  { href: "/edition", label: "The Edition", folio: "A2" },
+  { href: "/#edition", label: "The Edition", folio: "A2" },
   { href: "/about", label: "Profile", folio: "A3" },
   { href: "/work", label: "Technology", folio: "A5" },
   { href: "/experience", label: "Business", folio: "A7" },

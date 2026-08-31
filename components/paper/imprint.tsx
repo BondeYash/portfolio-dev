@@ -21,7 +21,7 @@ export function Imprint() {
 
       <p className="prose-col mt-1.5 !text-left !text-[0.78rem] !leading-[1.4] text-faded">
         Composed in Next.js and set in Playfair Display, Source Serif and
-        Oswald; masthead cut in UnifrakturMaguntia. Page turns performed by GSAP.
+        Oswald; masthead cut in Grenze Gotisch. Page turns performed by GSAP.
         Letters to the desk:{" "}
         <a className="link-news" href={`mailto:${profile.email}`}>
           {profile.email}

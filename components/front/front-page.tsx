@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
+import { Flipbook } from "@/components/edition/flipbook";
+import { buildEditionPages } from "@/components/edition/pages";
 import { LeadArt } from "@/components/front/lead-art";
 import { Imprint } from "@/components/paper/imprint";
 import { IndexStrip } from "@/components/paper/index-strip";
@@ -189,6 +191,7 @@ export function FrontPage({
   }, []);
 
   const { profile: gh, repos, source } = github;
+  const editionPages = useMemo(() => buildEditionPages(github), [github]);
 
   return (
     <div ref={root} className="desk px-0 py-0 sm:px-6 sm:py-8">
@@ -330,10 +333,11 @@ export function FrontPage({
                     engineer notes, are not decoration.
                   </p>
                   <p className="prose-col" data-reveal>
-                    Readers are directed to the full edition, where the record
-                    is set out page by page and may be turned by hand.
+                    Readers are directed to the bound edition printed at the
+                    foot of this page, where the record is set out page by page
+                    and may be turned by hand.
                   </p>
-                  <Jump to="The Edition, Page A2" />
+                  <Jump to="the bound edition, below" />
                 </div>
               </div>
             </div>
@@ -345,7 +349,7 @@ export function FrontPage({
                 <Rule weight="hair" className="mt-1.5" />
                 <ol className="mt-2 space-y-1.5">
                   {[
-                    ["A2", "The Profile", "/edition"],
+                    ["A2", "The Profile", "#edition"],
                     ["A3", "Schooling & Honours", "/about"],
                     ["A5", "Technology & Projects", "/work"],
                     ["A7", "Business & Career", "/experience"],
@@ -389,7 +393,7 @@ export function FrontPage({
               </div>
 
               <Link
-                href="/edition"
+                href="#edition"
                 data-reveal
                 className="group mt-4 block border-4 border-double border-rule p-3 text-center transition-colors hover:bg-ink hover:text-paper"
               >
@@ -401,7 +405,7 @@ export function FrontPage({
                   The full edition, bound &amp; turnable
                 </p>
                 <p className="mt-1 font-hed text-lg italic">
-                  Open A2 &rarr;
+                  Turn to it below &darr;
                 </p>
               </Link>
             </aside>
@@ -656,13 +660,37 @@ export function FrontPage({
 
           <div className="text-center" data-reveal>
             <p className="slug">End of the front page</p>
-            <Link
-              href="/edition"
-              className="mt-2 inline-block border-2 border-rule px-5 py-2 font-cond text-[0.8rem] uppercase tracking-news transition-colors hover:bg-ink hover:text-paper"
-            >
-              Continue to the full edition &rarr;
-            </Link>
+            <p className="mt-1 font-hed text-lg italic text-faded">
+              The edition is bound below &darr;
+            </p>
           </div>
+        </div>
+
+        {/* ============ THE BOUND EDITION ============ */}
+        <section id="edition" className="mt-8 scroll-mt-3">
+          <SectionHead
+            label="The Bound Edition"
+            folio="A2–A12"
+            note="Twelve pages, turned by hand"
+          />
+          <p className="dek mx-auto mb-4 max-w-2xl text-center">
+            The whole record, sewn into twelve pages. Drag a corner, click the
+            outer edge, or use the arrow keys — the sheet lifts and falls the
+            way paper does.
+          </p>
+          <Flipbook pages={editionPages} label="The bound edition" />
+        </section>
+
+        <Ornament className="my-6" />
+
+        <div className="no-print text-center">
+          <p className="slug">End of the edition</p>
+          <Link
+            href="/edition"
+            className="mt-2 inline-block border-2 border-rule px-5 py-2 font-cond text-[0.8rem] uppercase tracking-news transition-colors hover:bg-ink hover:text-paper"
+          >
+            Read the edition on its own page &rarr;
+          </Link>
         </div>
 
         <Imprint />

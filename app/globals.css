@@ -158,8 +158,8 @@ body {
 
 @layer components {
   .masthead {
-    @apply font-masthead leading-[0.86];
-    letter-spacing: 0.01em;
+    @apply font-masthead font-bold leading-[0.9];
+    letter-spacing: 0.005em;
   }
 
   .hed {

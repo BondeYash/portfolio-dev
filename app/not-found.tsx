@@ -27,7 +27,7 @@ export default function NotFound() {
             Back to the front page
           </Link>
           <Link
-            href="/edition"
+            href="/#edition"
             className="border-2 border-rule px-5 py-2 font-cond text-[0.78rem] uppercase tracking-news transition-colors hover:bg-ink hover:text-paper"
           >
             Open the bound edition &rarr;

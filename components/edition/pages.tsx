@@ -584,7 +584,7 @@ export function buildEditionPages(github: GithubPayload): EditionPage[] {
             <p className="pg-copy">
               This edition is composed in Next.js and React, set in Playfair
               Display, Source Serif and Oswald, with the masthead cut in
-              UnifrakturMaguntia. Pages are hinged at the spine and turned by
+              Grenze Gotisch. Pages are hinged at the spine and turned by
               GSAP on a single web thread.
             </p>
             <p className="pg-copy mt-1.5">

@@ -1,17 +1,17 @@
 import type { Metadata, Viewport } from "next";
 import {
+  Grenze_Gotisch,
   Oswald,
   Playfair_Display,
   Source_Serif_4,
   Special_Elite,
-  UnifrakturMaguntia,
 } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { profile, skillKeywords } from "@/data/profile";
 import "./globals.css";
 
-const masthead = UnifrakturMaguntia({
-  weight: "400",
+const masthead = Grenze_Gotisch({
+  weight: ["500", "700", "900"],
   subsets: ["latin"],
   display: "swap",
   variable: "--font-masthead",
