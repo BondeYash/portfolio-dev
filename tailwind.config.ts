@@ -35,7 +35,7 @@ const config: Config = {
       },
       boxShadow: {
         sheet: "0 1px 0 rgb(var(--rule) / 0.35), 0 24px 60px -30px rgb(0 0 0 / 0.55)",
-        leaf: "0 30px 70px -35px rgb(0 0 0 / 0.75)",
+        leaf: "0 44px 90px -34px rgb(0 0 0 / 0.85), 0 4px 14px -6px rgb(0 0 0 / 0.5)",
       },
       backgroundImage: {
         newsprint:

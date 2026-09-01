@@ -5,6 +5,10 @@ import { formatUpdated } from "@/lib/format";
 import { languageColor } from "@/lib/language-colors";
 import type { GithubPayload } from "@/lib/types";
 
+/* The commissioned portrait: the engineer photographed on the frontier
+   set, printed as this edition's plate. */
+const PORTRAIT = "/portrait.jpg";
+
 /* ------------------------------------------------------------------
    The twelve printed pages of the edition. Each one is composed for a
    380 x 543 canvas and scaled to whatever the reader's screen allows.
@@ -76,73 +80,91 @@ export function buildEditionPages(github: GithubPayload): EditionPage[] {
       id: "cover",
       section: "Cover",
       folio: "01",
+      bleed: true,
       node: (
-        <div className="flex h-full flex-col">
-          <div className="flex items-baseline justify-between">
-            <span className="pg-slug">{paper.volume}</span>
-            <span className="pg-slug misregister">Bound Edition</span>
-            <span className="pg-slug">{paper.number}</span>
-          </div>
-          <div className="mt-1 border-b-2 border-rule" />
-          <h1 className="masthead py-2 text-center text-[2.35rem] leading-none">
-            {paper.title}
-          </h1>
-          <div className="border-b-2 border-rule" />
-          <p className="pg-slug py-1 text-center">
-            {paper.city} &middot; {paper.motto}
-          </p>
-          <div className="border-b-[5px] border-rule" />
+        <div className="relative h-full w-full overflow-hidden bg-ink">
+          {/* the plate, printed to the trim */}
+          <Image
+            src={PORTRAIT}
+            alt={`${profile.fullName}, photographed for this edition`}
+            fill
+            priority
+            sizes="(min-width: 900px) 50vw, 100vw"
+            className="cover-plate object-cover object-[center_30%]"
+          />
 
-          <figure className="mt-2">
-            <div className="halftone relative aspect-[16/9] w-full overflow-hidden border-2 border-rule">
-              <Image
-                src={gh.avatarUrl}
-                alt={`${profile.fullName}, portrait`}
-                fill
-                sizes="380px"
-                className="object-cover object-top"
-              />
+          {/* ink laid over the plate so the type stays readable */}
+          <div aria-hidden="true" className="cover-wash absolute inset-0" />
+
+          <div className="relative flex h-full flex-col px-5 py-4 text-paper">
+            <div className="flex items-baseline justify-between">
+              <span className="pg-slug !text-paper/70">{paper.volume}</span>
+              <span className="pg-slug !text-spot">Bound Edition</span>
+              <span className="pg-slug !text-paper/70">{paper.number}</span>
             </div>
-            <figcaption className="pg-slug mt-1 leading-snug">
-              {profile.fullName} &mdash; {profile.role}, photographed for this
-              edition.
-            </figcaption>
-          </figure>
+            <div className="mt-1 border-b-2 border-paper/70" />
 
-          <h2 className="pg-hed mt-1.5 text-center text-[1.3rem]">
-            Twelve Pages, One Engineer
-          </h2>
+            <h1 className="masthead cover-title py-1.5 text-center text-[2.9rem] leading-[0.86]">
+              {paper.title}
+            </h1>
 
-          <div className="mt-auto border-2 border-rule p-2">
-            <p className="pg-kicker">Inside</p>
-            <ol className="mt-1 grid grid-cols-2 gap-x-3 gap-y-[2px]">
-              {[
-                ["02", "The Profile"],
-                ["03", "Vitals"],
-                ["04", "Schooling"],
-                ["05", "Honours"],
-                ["06", "Business"],
-                ["07", "The Toolkit"],
-                ["08", "Projects I"],
-                ["09", "Projects II"],
-                ["10", "Markets"],
-                ["11", "Classifieds"],
-                ["12", "Back Page"],
-              ].map(([folio, title]) => (
-                <li
-                  key={folio}
-                  className="pg-label flex items-baseline justify-between border-b border-rule/20"
-                >
-                  <span>{title}</span>
-                  <span className="pg-slug tabular">{folio}</span>
-                </li>
-              ))}
-            </ol>
+            <div className="border-b-2 border-paper/70" />
+            <p className="pg-slug !text-paper/75 py-1 text-center">
+              {paper.city} &middot; {paper.motto}
+            </p>
+            <div className="border-b-[3px] border-paper/70" />
+
+            <div className="mt-auto">
+              <p className="pg-kicker !text-spot">
+                Vol. {paper.number} &middot; The Frontier Desk
+              </p>
+              <h2 className="pg-hed cover-hed mt-0.5 text-[2rem] leading-[0.98]">
+                Twelve Pages,
+                <br />
+                One Engineer
+              </h2>
+              <p className="pg-dek !text-paper/85 mt-1 max-w-[86%]">
+                {profile.subheading}
+              </p>
+              <p className="pg-slug !text-paper/60 mt-1">
+                {profile.fullName} &mdash; {profile.role} &middot; {paper.wire}
+              </p>
+
+              {/* the index, set on a slip of stock so it reads off the plate */}
+              <div className="mt-2.5 border-2 border-paper/60 bg-ink/55 p-2 backdrop-blur-[1px]">
+                <p className="pg-kicker !text-spot">Inside</p>
+                <ol className="mt-1 grid grid-cols-2 gap-x-3 gap-y-[1px]">
+                  {[
+                    ["02", "The Profile"],
+                    ["03", "Vitals"],
+                    ["04", "Schooling"],
+                    ["05", "Honours"],
+                    ["06", "Business"],
+                    ["07", "The Toolkit"],
+                    ["08", "Projects I"],
+                    ["09", "Projects II"],
+                    ["10", "Markets"],
+                    ["11", "Classifieds"],
+                    ["12", "Back Page"],
+                  ].map(([folio, title]) => (
+                    <li
+                      key={folio}
+                      className="pg-label !text-paper flex items-baseline justify-between border-b border-paper/25"
+                    >
+                      <span>{title}</span>
+                      <span className="pg-slug !text-paper/60 tabular">
+                        {folio}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <p className="pg-label !text-spot mt-2 text-center">
+                Turn the corner to begin &rarr;
+              </p>
+            </div>
           </div>
-
-          <p className="pg-label mt-2 text-center text-spot">
-            Turn the corner to begin &rarr;
-          </p>
         </div>
       ),
     },
@@ -208,11 +230,11 @@ export function buildEditionPages(github: GithubPayload): EditionPage[] {
             <figure className="w-[36%] shrink-0">
               <div className="halftone relative aspect-[3/4] w-full overflow-hidden border-2 border-rule">
                 <Image
-                  src={gh.avatarUrl}
+                  src={PORTRAIT}
                   alt={`${profile.fullName}`}
                   fill
                   sizes="140px"
-                  className="object-cover"
+                  className="object-cover object-[center_28%]"
                 />
               </div>
               <figcaption className="pg-slug mt-1 leading-snug">

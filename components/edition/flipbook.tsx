@@ -17,6 +17,8 @@ export type EditionPage = {
   section: string;
   folio: string;
   node: React.ReactNode;
+  /** Print this page to the trim, with no margin — the cover plate does. */
+  bleed?: boolean;
 };
 
 /** Every page is composed at this size, then scaled to fit the stage. */
@@ -691,7 +693,9 @@ function PageCanvas({
           transform: `scale(${scale})`,
         }}
       >
-        <div className="pg px-5 py-4">{page.node}</div>
+        <div className={page.bleed ? "pg h-full" : "pg h-full px-5 py-4"}>
+          {page.node}
+        </div>
       </div>
     </div>
   );

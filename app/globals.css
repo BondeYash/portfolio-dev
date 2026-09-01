@@ -9,17 +9,19 @@
 
 :root {
   color-scheme: light;
-  --paper: 243 238 226;
-  --stock: 233 226 209;
-  --ink: 23 20 16;
-  --faded: 88 79 64;
-  --rule: 32 27 21;
-  --spot: 168 33 27;
-  --press: 30 58 92;
-  --desk: 206 197 180;
-  --grain: 0.05;
-  --fiber: 0.05;
-  --vignette: 0.1;
+  /* Aged stock: the warm sepia of paper that has sat in a drawer for a
+     century, read off the cover plate. */
+  --paper: 236 222 195;
+  --stock: 223 205 174;
+  --ink: 40 29 19;
+  --faded: 105 84 58;
+  --rule: 74 55 36;
+  --spot: 158 58 30;
+  --press: 92 68 42;
+  --desk: 58 44 31;
+  --grain: 0.07;
+  --fiber: 0.07;
+  --vignette: 0.18;
 }
 
 .dark {
@@ -116,12 +118,24 @@ body {
 /* The desk the paper lies on. */
 .desk {
   background-color: rgb(var(--desk));
-  background-image: radial-gradient(
-    120% 90% at 50% 0%,
-    rgb(var(--paper) / 0.14),
-    transparent 62%
-  );
+  background-image:
+    radial-gradient(
+      90% 70% at 50% 34%,
+      rgb(var(--paper) / 0.16),
+      transparent 68%
+    ),
+    radial-gradient(
+      100% 78% at 50% 45%,
+      transparent 38%,
+      rgb(0 0 0 / 0.55) 100%
+    ),
+    repeating-linear-gradient(
+      92deg,
+      rgb(0 0 0 / 0.07) 0 2px,
+      transparent 2px 7px
+    );
 }
+
 
 .sheet {
   background-color: rgb(var(--paper));
@@ -336,6 +350,48 @@ body {
 .dark .halftone::after {
   mix-blend-mode: screen;
   opacity: 0.35;
+}
+
+/* ---------- The cover plate --------------------------------- */
+
+/* A photograph run on newsprint: pushed warm, screened back a touch, and
+   printed under the same dot screen the inside pages use. */
+.cover-plate {
+  filter: sepia(0.42) saturate(0.82) contrast(1.12) brightness(0.92);
+}
+
+.cover-wash {
+  z-index: 1;
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgb(var(--ink) / 0.72) 0%,
+      rgb(var(--ink) / 0.18) 26%,
+      rgb(var(--ink) / 0.34) 52%,
+      rgb(var(--ink) / 0.88) 88%
+    ),
+    radial-gradient(
+      120% 90% at 50% 40%,
+      transparent 40%,
+      rgb(var(--ink) / 0.55) 100%
+    ),
+    radial-gradient(rgb(var(--ink) / 0.5) 32%, transparent 33%);
+  background-size:
+    100% 100%,
+    100% 100%,
+    3px 3px;
+}
+
+.cover-title {
+  color: rgb(var(--paper));
+  text-shadow:
+    0 1px 0 rgb(var(--ink) / 0.9),
+    1.2px -0.6px 0 rgb(var(--spot) / 0.5);
+}
+
+.cover-hed {
+  color: rgb(var(--paper));
+  text-shadow: 0 2px 10px rgb(var(--ink) / 0.85);
 }
 
 /* ---------- Boxes ------------------------------------------- */

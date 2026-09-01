@@ -5,9 +5,9 @@ export const alt = `Yash Times - ${profile.fullName}, ${profile.role}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const PAPER = "#f3eee2";
-const INK = "#171410";
-const SPOT = "#a8211b";
+const PAPER = "#ecdec3";
+const INK = "#281d13";
+const SPOT = "#9e3a1e";
 const MUTED = "#584f40";
 
 /**
