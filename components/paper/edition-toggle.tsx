@@ -17,7 +17,7 @@ export function EditionToggle({ className = "" }: { className?: string }) {
       aria-label={
         night ? "Switch to the morning edition" : "Switch to the night edition"
       }
-      className={`no-print font-cond text-[0.7rem] uppercase tracking-news text-faded underline decoration-dotted decoration-from-font underline-offset-4 transition-colors hover:text-spot ${className}`}
+      className={`no-print font-cond text-[0.7rem] uppercase tracking-news text-ink/85 underline decoration-dotted decoration-from-font underline-offset-4 transition-colors hover:text-spot ${className}`}
     >
       <span aria-hidden="true">{night ? "☾ " : "☀ "}</span>
       {night ? "Night Edition" : "Morning Edition"}

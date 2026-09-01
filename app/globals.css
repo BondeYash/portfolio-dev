@@ -11,17 +11,17 @@
   color-scheme: light;
   /* Aged stock: the warm sepia of paper that has sat in a drawer for a
      century, read off the cover plate. */
-  --paper: 236 222 195;
-  --stock: 223 205 174;
-  --ink: 40 29 19;
-  --faded: 105 84 58;
-  --rule: 74 55 36;
-  --spot: 158 58 30;
+  --paper: 241 231 209;
+  --stock: 229 215 188;
+  --ink: 38 28 18;
+  --faded: 97 76 52;
+  --rule: 78 58 38;
+  --spot: 156 55 28;
   --press: 92 68 42;
-  --desk: 58 44 31;
-  --grain: 0.07;
-  --fiber: 0.07;
-  --vignette: 0.18;
+  --desk: 191 173 143;
+  --grain: 0.06;
+  --fiber: 0.06;
+  --vignette: 0.12;
 }
 
 .dark {
@@ -120,19 +120,19 @@ body {
   background-color: rgb(var(--desk));
   background-image:
     radial-gradient(
-      90% 70% at 50% 34%,
-      rgb(var(--paper) / 0.16),
-      transparent 68%
+      85% 65% at 50% 38%,
+      rgb(var(--paper) / 0.28),
+      transparent 70%
     ),
     radial-gradient(
-      100% 78% at 50% 45%,
-      transparent 38%,
-      rgb(0 0 0 / 0.55) 100%
+      100% 80% at 50% 45%,
+      transparent 52%,
+      rgb(var(--rule) / 0.24) 100%
     ),
     repeating-linear-gradient(
       92deg,
-      rgb(0 0 0 / 0.07) 0 2px,
-      transparent 2px 7px
+      rgb(var(--rule) / 0.05) 0 2px,
+      transparent 2px 8px
     );
 }
 
@@ -357,7 +357,7 @@ body {
 /* A photograph run on newsprint: pushed warm, screened back a touch, and
    printed under the same dot screen the inside pages use. */
 .cover-plate {
-  filter: sepia(0.42) saturate(0.82) contrast(1.12) brightness(0.92);
+  filter: sepia(0.3) saturate(0.9) contrast(1.06) brightness(1.04);
 }
 
 .cover-wash {
@@ -365,33 +365,73 @@ body {
   background-image:
     linear-gradient(
       to bottom,
-      rgb(var(--ink) / 0.72) 0%,
-      rgb(var(--ink) / 0.18) 26%,
-      rgb(var(--ink) / 0.34) 52%,
-      rgb(var(--ink) / 0.88) 88%
+      rgb(var(--ink) / 0.18) 0%,
+      transparent 18%,
+      transparent 70%,
+      rgb(var(--ink) / 0.3) 100%
     ),
-    radial-gradient(
-      120% 90% at 50% 40%,
-      transparent 40%,
-      rgb(var(--ink) / 0.55) 100%
-    ),
-    radial-gradient(rgb(var(--ink) / 0.5) 32%, transparent 33%);
+    radial-gradient(rgb(var(--ink) / 0.3) 30%, transparent 31%);
   background-size:
-    100% 100%,
     100% 100%,
     3px 3px;
 }
 
 .cover-title {
-  color: rgb(var(--paper));
-  text-shadow:
-    0 1px 0 rgb(var(--ink) / 0.9),
-    1.2px -0.6px 0 rgb(var(--spot) / 0.5);
+  color: rgb(var(--ink));
+  text-shadow: 1.2px -0.6px 0 rgb(var(--spot) / 0.28);
 }
 
 .cover-hed {
-  color: rgb(var(--paper));
-  text-shadow: 0 2px 10px rgb(var(--ink) / 0.85);
+  color: rgb(var(--ink));
+}
+
+/* A slip of stock pasted over the plate: the type sits on paper, never on
+   the photograph. */
+.cover-slip {
+  background: rgb(var(--paper) / 0.96);
+  box-shadow: 0 -6px 18px -8px rgb(var(--ink) / 0.55);
+}
+
+/* ---------- Desk rails -------------------------------------- */
+
+/* Slips of stock pinned to the desk beside the paper. */
+.rail-slip {
+  background: rgb(var(--paper) / 0.9);
+  border: 1px solid rgb(var(--rule) / 0.55);
+  box-shadow:
+    0 12px 26px -18px rgb(var(--ink) / 0.7),
+    inset 0 0 0 1px rgb(var(--paper) / 0.6);
+  padding: 0.6rem 0.7rem;
+}
+
+.rail-kicker {
+  font-family: var(--font-cond), Haettenschweiler, Impact, sans-serif;
+  font-weight: 700;
+  font-size: 0.64rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--spot));
+}
+
+.rail-line {
+  font-family: var(--font-cond), Haettenschweiler, Impact, sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--faded));
+}
+
+.rail-link {
+  font-family: var(--font-cond), Haettenschweiler, Impact, sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--ink));
+  transition: color 160ms ease;
+}
+
+.rail-link:hover {
+  color: rgb(var(--spot));
 }
 
 /* ---------- Boxes ------------------------------------------- */

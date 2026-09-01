@@ -134,8 +134,9 @@ export function Flipbook({
 
     const measure = () => {
       const available = stage.clientWidth;
+      const pad = fill ? 2 * parseFloat(getComputedStyle(stage).paddingTop) : 2;
       const room = fill
-        ? Math.max(200, stage.clientHeight - 2)
+        ? Math.max(200, stage.clientHeight - pad)
         : Math.max(380, window.innerHeight - 196);
       const ratio = DESIGN_W / DESIGN_H;
       const columns = spread ? 2 : 1;
@@ -458,6 +459,21 @@ export function Flipbook({
      leaving half the desk blank. */
   const shift = spread ? (atStart ? -size.w / 2 : atEnd ? size.w / 2 : 0) : 0;
 
+  /* A link anywhere on the desk — a rail, a bookmark, a shared URL — turns
+     the paper to that page. */
+  useEffect(() => {
+    if (!syncHash) return;
+    const onHash = () => {
+      const id = decodeURIComponent(window.location.hash.slice(1));
+      if (!id) return;
+      const index = pages.findIndex((page) => page.id === id);
+      if (index < 0) return;
+      goToLeaf(spread ? Math.ceil(index / 2) : index);
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, [goToLeaf, pages, spread, syncHash]);
+
   const openPageId = visible[visible.length - 1]?.id;
   useEffect(() => {
     if (!syncHash || !openPageId) return;
@@ -474,8 +490,10 @@ export function Flipbook({
       {/* ---- stage ---- */}
       <div
         ref={stageRef}
-        className={`book-stage relative mx-auto flex w-full items-center justify-center px-1 ${
-          fill ? "min-h-0 flex-1 overflow-hidden py-0" : "py-2"
+        className={`book-stage relative mx-auto flex w-full items-center justify-center ${
+          fill
+            ? "min-h-0 flex-1 overflow-hidden px-4 py-3 sm:px-6 sm:py-4"
+            : "px-1 py-2"
         }`}
       >
         <div
