@@ -83,9 +83,15 @@ function useRustle(enabled: boolean) {
 export function Flipbook({
   pages,
   label = "The edition",
+  fill = false,
+  syncHash = false,
 }: {
   pages: EditionPage[];
   label?: string;
+  /** Fill the height of the flex parent instead of sizing off the window. */
+  fill?: boolean;
+  /** Keep the address bar on the page the reader is looking at. */
+  syncHash?: boolean;
 }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const bookRef = useRef<HTMLDivElement>(null);
@@ -126,7 +132,9 @@ export function Flipbook({
 
     const measure = () => {
       const available = stage.clientWidth;
-      const room = Math.max(380, window.innerHeight - 196);
+      const room = fill
+        ? Math.max(200, stage.clientHeight - 2)
+        : Math.max(380, window.innerHeight - 196);
       const ratio = DESIGN_W / DESIGN_H;
       const columns = spread ? 2 : 1;
       let pageW = Math.min(
@@ -146,7 +154,23 @@ export function Flipbook({
       observer.disconnect();
       window.removeEventListener("resize", measure);
     };
-  }, [spread]);
+  }, [fill, spread]);
+
+  /* ---------- opening page ------------------------------------- */
+
+  useIsomorphicLayoutEffect(() => {
+    if (!syncHash) return;
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    if (!id) return;
+    const index = pages.findIndex((page) => page.id === id);
+    if (index <= 0) return;
+    const wide = window.matchMedia("(min-width: 900px)").matches;
+    const leaf = wide ? Math.ceil(index / 2) : index;
+    prevSpread.current = wide;
+    flippedRef.current = leaf;
+    setFlipped(leaf);
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, []);
 
   /* ---------- leaf painting ------------------------------------- */
 
@@ -427,12 +451,30 @@ export function Flipbook({
   const atStart = flipped === 0;
   const atEnd = flipped >= leafCount;
 
+  /* A bound edition opens on the cover alone and closes on the back page
+     alone. Slide the book so the single sheet sits centred instead of
+     leaving half the desk blank. */
+  const shift = spread ? (atStart ? -size.w / 2 : atEnd ? size.w / 2 : 0) : 0;
+
+  const openPageId = visible[visible.length - 1]?.id;
+  useEffect(() => {
+    if (!syncHash || !openPageId) return;
+    const hash = openPageId === pages[0]?.id ? " " : `#${openPageId}`;
+    window.history.replaceState(null, "", hash === " " ? location.pathname : hash);
+  }, [openPageId, pages, syncHash]);
+
   return (
-    <div className="select-none">
+    <div
+      className={`select-none ${
+        fill ? "flex min-h-0 flex-1 flex-col" : ""
+      }`}
+    >
       {/* ---- stage ---- */}
       <div
         ref={stageRef}
-        className="book-stage relative mx-auto flex w-full justify-center px-1 py-2"
+        className={`book-stage relative mx-auto flex w-full items-center justify-center px-1 ${
+          fill ? "min-h-0 flex-1 overflow-hidden py-0" : "py-2"
+        }`}
       >
         <div
           ref={bookRef}
@@ -441,6 +483,8 @@ export function Flipbook({
             width: spread ? size.w * 2 : size.w,
             height: size.h,
             transformStyle: "preserve-3d",
+            transform: `translateX(${shift}px)`,
+            transition: "transform 420ms cubic-bezier(0.4, 0, 0.2, 1)",
           }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
@@ -450,15 +494,21 @@ export function Flipbook({
           {/* the pile of paper under everything */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 border border-rule/30 bg-stock shadow-leaf"
+            className="absolute inset-y-0 border border-rule/30 bg-stock shadow-leaf"
             style={{
-              transform: "translate3d(3px, 4px, -8px)",
+              left: spread && !atEnd ? size.w : 0,
+              width: size.w,
+              transform: `translate3d(${atEnd ? -3 : 3}px, 4px, -8px)`,
             }}
           />
           <div
             aria-hidden="true"
-            className="absolute inset-0 border border-rule/20 bg-stock/80"
-            style={{ transform: "translate3d(6px, 8px, -14px)" }}
+            className="absolute inset-y-0 border border-rule/20 bg-stock/80"
+            style={{
+              left: spread && !atEnd ? size.w : 0,
+              width: size.w,
+              transform: `translate3d(${atEnd ? -6 : 6}px, 8px, -14px)`,
+            }}
           />
 
           {leaves.map((leaf, index) => (
@@ -488,7 +538,7 @@ export function Flipbook({
             </div>
           ))}
 
-          {spread ? (
+          {spread && !atStart && !atEnd ? (
             <div
               className="gutter"
               aria-hidden="true"
@@ -524,7 +574,11 @@ export function Flipbook({
       </div>
 
       {/* ---- controls ---- */}
-      <div className="no-print mx-auto mt-4 flex max-w-broadsheet flex-wrap items-center justify-center gap-2 px-3">
+      <div
+        className={`no-print mx-auto flex max-w-broadsheet flex-wrap items-center justify-center gap-2 px-3 ${
+          fill ? "mt-1.5 shrink-0" : "mt-4"
+        }`}
+      >
         <button
           type="button"
           onClick={() => turn(-1)}
@@ -567,7 +621,9 @@ export function Flipbook({
       {/* ---- page index ---- */}
       <nav
         aria-label={`${label} contents`}
-        className="no-print mx-auto mt-3 flex max-w-broadsheet flex-wrap items-center justify-center gap-1.5 px-3"
+        className={`no-print mx-auto flex max-w-broadsheet flex-wrap items-center justify-center gap-1.5 px-3 ${
+          fill ? "mt-1 shrink-0" : "mt-3"
+        }`}
       >
         {pages.map((page, index) => {
           const targetLeaf = spread
@@ -593,9 +649,12 @@ export function Flipbook({
         })}
       </nav>
 
-      <p className="no-print mt-3 text-center font-cond text-[0.66rem] uppercase tracking-news text-faded">
-        Click the corner &middot; drag the sheet &middot; arrow keys turn pages
-      </p>
+      {fill ? null : (
+        <p className="no-print mt-3 text-center font-cond text-[0.66rem] uppercase tracking-news text-faded">
+          Click the corner &middot; drag the sheet &middot; arrow keys turn
+          pages
+        </p>
+      )}
     </div>
   );
 }

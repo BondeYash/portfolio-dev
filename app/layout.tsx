@@ -81,7 +81,7 @@ export const viewport: Viewport = {
   ],
 };
 
-const editionBootScript = `(function(){var d=document.documentElement;try{var e=localStorage.getItem('edition');var night=e?e==='night':window.matchMedia('(prefers-color-scheme: dark)').matches;d.classList.toggle('dark',night);d.classList.toggle('light',!night);}catch(err){}d.classList.add('js');})();`;
+const editionBootScript = `(function(){var d=document.documentElement;try{var e=localStorage.getItem('edition');var night=e==='night';d.classList.toggle('dark',night);d.classList.toggle('light',!night);}catch(err){}d.classList.add('js');})();`;
 
 export default function RootLayout({
   children,

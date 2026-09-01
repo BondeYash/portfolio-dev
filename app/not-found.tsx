@@ -24,13 +24,13 @@ export default function NotFound() {
             href="/"
             className="border-2 border-rule px-5 py-2 font-cond text-[0.78rem] uppercase tracking-news transition-colors hover:bg-ink hover:text-paper"
           >
-            Back to the front page
+            Back to page one
           </Link>
           <Link
-            href="/#edition"
+            href="/#classifieds"
             className="border-2 border-rule px-5 py-2 font-cond text-[0.78rem] uppercase tracking-news transition-colors hover:bg-ink hover:text-paper"
           >
-            Open the bound edition &rarr;
+            Turn to the classifieds &rarr;
           </Link>
         </div>
 

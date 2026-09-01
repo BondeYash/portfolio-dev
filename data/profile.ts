@@ -1,14 +1,5 @@
 export const GITHUB_USERNAME = "BondeYash";
 
-export const nav = [
-  { href: "/", label: "Front Page", folio: "A1" },
-  { href: "/#edition", label: "The Edition", folio: "A2" },
-  { href: "/about", label: "Profile", folio: "A3" },
-  { href: "/work", label: "Technology", folio: "A5" },
-  { href: "/experience", label: "Business", folio: "A7" },
-  { href: "/contact", label: "Classifieds", folio: "A9" },
-] as const;
-
 /** Masthead furniture — the fixed print identity of the paper. */
 export const paper = {
   title: "Yash Times",

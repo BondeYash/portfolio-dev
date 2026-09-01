@@ -22,10 +22,10 @@ const EditionContext = createContext<EditionContextValue | null>(null);
 function readEdition(): Edition {
   if (typeof window === "undefined") return "morning";
   const stored = window.localStorage.getItem("edition");
-  if (stored === "morning" || stored === "night") return stored;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "night"
-    : "morning";
+  if (stored === "night") return "night";
+  /* The press runs the morning edition by default; the night run is a
+     choice the reader makes, not one the operating system makes for them. */
+  return "morning";
 }
 
 export function EditionProvider({ children }: { children: React.ReactNode }) {
