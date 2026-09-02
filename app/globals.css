@@ -461,8 +461,10 @@ body {
 /* ---------- Flipbook 3D ------------------------------------- */
 
 .book-stage {
-  perspective: 2800px;
-  perspective-origin: 50% 44%;
+  /* A shorter throw makes the fold read as a fold and not as a flat card
+     spinning in place. */
+  perspective: 2300px;
+  perspective-origin: 50% 46%;
 }
 
 .leaf {
@@ -479,6 +481,7 @@ body {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   background: rgb(var(--paper));
@@ -490,29 +493,41 @@ body {
 }
 
 /* shading that sweeps across a turning leaf */
+/* Twice the width of the face, so sliding the position sweeps the light
+   across the sheet as it swings instead of just fading it out. */
 .leaf-shade {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 6;
   opacity: 0;
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  background-position: 0% 0;
+  will-change: opacity, background-position;
 }
 
 .leaf-shade--front {
-  background: linear-gradient(
+  background-image: linear-gradient(
     to left,
-    rgb(0 0 0 / 0.55) 0%,
-    rgb(0 0 0 / 0.16) 42%,
-    transparent 78%
+    rgb(0 0 0 / 0.58) 0%,
+    rgb(0 0 0 / 0.24) 20%,
+    rgb(255 255 255 / 0.15) 38%,
+    rgb(0 0 0 / 0.13) 58%,
+    rgb(0 0 0 / 0.03) 80%,
+    transparent 100%
   );
 }
 
 .leaf-shade--back {
-  background: linear-gradient(
+  background-image: linear-gradient(
     to right,
-    rgb(0 0 0 / 0.55) 0%,
-    rgb(0 0 0 / 0.16) 42%,
-    transparent 78%
+    rgb(0 0 0 / 0.58) 0%,
+    rgb(0 0 0 / 0.24) 20%,
+    rgb(255 255 255 / 0.15) 38%,
+    rgb(0 0 0 / 0.13) 58%,
+    rgb(0 0 0 / 0.03) 80%,
+    transparent 100%
   );
 }
 
@@ -651,5 +666,556 @@ body {
   .newsprint::before,
   .newsprint::after {
     display: none;
+  }
+}
+
+/* ============================================================
+   THE DELIVERY — opening reel
+   One plate of line work over flat stock, animated as transforms.
+   ============================================================ */
+
+.intro-reel {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: rgb(var(--stock));
+  perspective: 1400px;
+  isolation: isolate;
+}
+
+/* halftone screen — the dot the press would have laid down */
+.intro-reel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  background-image: radial-gradient(
+    rgb(var(--ink) / 0.55) 1px,
+    transparent 1.2px
+  );
+  background-size: 4px 4px;
+  opacity: 0.15;
+  mix-blend-mode: multiply;
+}
+
+/* film grain and a printed vignette */
+.intro-reel::after {
+  content: "";
+  position: absolute;
+  inset: -12%;
+  z-index: 9;
+  pointer-events: none;
+  background-image: theme("backgroundImage.newsprint");
+  opacity: 0.16;
+  animation: reel-grain 0.5s steps(3) infinite;
+}
+
+@keyframes reel-grain {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  33% {
+    transform: translate3d(-2%, 1.5%, 0);
+  }
+  66% {
+    transform: translate3d(1.5%, -2%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.intro-plate {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  box-shadow: inset 0 0 200px 40px rgb(var(--rule) / 0.22);
+}
+
+/* ---------- the ink ---------- */
+
+.ink-stroke,
+.ink-stroke path,
+.ink-stroke circle,
+.ink-stroke ellipse {
+  fill: none;
+  stroke: rgb(var(--ink));
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ink-hair,
+.ink-hair path {
+  fill: none;
+  stroke: rgb(var(--ink));
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.8;
+}
+
+.ink-fill,
+.ink-fill * {
+  fill: rgb(var(--ink));
+  stroke: none;
+}
+
+.ink-fill .win {
+  fill: rgb(var(--stock));
+  opacity: 0.75;
+}
+
+.stock-fill {
+  fill: rgb(var(--stock));
+}
+
+.road-fill {
+  fill: rgb(var(--press));
+  opacity: 0.2;
+}
+
+.ink-fill .glow {
+  fill: url(#lamp-glow);
+}
+
+.paper-fill {
+  fill: rgb(var(--paper));
+}
+
+.face-fill {
+  fill: rgb(var(--paper));
+}
+
+.spot-fill {
+  fill: rgb(var(--spot));
+}
+
+.hair-fill {
+  fill: rgb(var(--ink));
+}
+
+.cap-fill {
+  fill: rgb(var(--press));
+  stroke: rgb(var(--ink));
+  stroke-width: 3.5;
+  stroke-linejoin: round;
+}
+
+/* Limbs and body are drawn as strokes: a dark one, then a lighter one on
+   top of it. That is how the plate would have been cut, and it keeps the
+   figure readable at any size. */
+.body-out {
+  fill: none;
+  stroke: rgb(var(--ink));
+  stroke-width: 58;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.body-in {
+  fill: none;
+  stroke: rgb(var(--paper));
+  stroke-width: 46;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.neck.body-out {
+  stroke-width: 36;
+}
+
+.neck.body-in {
+  stroke-width: 26;
+}
+
+.sleeve.body-out {
+  stroke-width: 34;
+}
+
+.sleeve.body-in {
+  stroke-width: 24;
+}
+
+.skin-out {
+  fill: none;
+  stroke: rgb(var(--ink));
+  stroke-width: 27;
+  stroke-linecap: round;
+}
+
+.skin-in {
+  fill: none;
+  stroke: rgb(var(--paper));
+  stroke-width: 19;
+  stroke-linecap: round;
+}
+
+.trouser {
+  fill: none;
+  stroke: rgb(var(--ink));
+  stroke-width: 62;
+  stroke-linecap: round;
+}
+
+.face-line {
+  stroke: rgb(var(--ink));
+  stroke-width: 4;
+}
+
+.cuff {
+  stroke-width: 5;
+}
+
+.collar {
+  stroke-width: 4;
+}
+
+.shirt-fill {
+  fill: rgb(var(--paper));
+}
+
+.trouser-fill {
+  fill: rgb(var(--ink));
+  opacity: 0.92;
+}
+
+.leather-fill {
+  fill: rgb(var(--press));
+  stroke: rgb(var(--ink));
+  stroke-width: 4;
+}
+
+.flap {
+  opacity: 0.82;
+}
+
+.strap {
+  stroke-width: 9;
+}
+
+.braces {
+  stroke-width: 4;
+}
+
+.smile {
+  stroke-width: 4;
+}
+
+circle.tyre {
+  stroke-width: 10;
+}
+
+.frame path {
+  stroke-width: 7;
+}
+
+.bar {
+  stroke-width: 7;
+}
+
+.spokes path {
+  stroke-width: 1.6;
+  opacity: 0.6;
+}
+
+.limb-near path {
+  fill: none;
+  stroke: rgb(var(--ink));
+  stroke-width: 30;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.limb-near .shoe {
+  fill: rgb(var(--ink));
+  stroke-width: 4;
+}
+
+.limb-far path {
+  fill: none;
+  stroke: rgb(var(--faded));
+  stroke-width: 26;
+  stroke-linecap: round;
+  opacity: 0.7;
+}
+
+.limb {
+  stroke-width: 14;
+}
+
+.bag-mark {
+  fill: rgb(var(--paper));
+  font-family: var(--font-type), monospace;
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  opacity: 0.9;
+}
+
+/* ---------- the edition in flight ---------- */
+
+/* Drawn large and scaled down, not small and scaled up: the sheet has to
+   stay sharp when it fills the screen. No will-change here on purpose —
+   the layer must re-rasterise as it grows. */
+.intro-fly {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 6;
+  width: 1160px;
+  height: 330px;
+  margin: -165px 0 0 -580px;
+  opacity: 0;
+  visibility: hidden;
+  filter: drop-shadow(0 18px 26px rgb(0 0 0 / 0.35));
+}
+
+.intro-fly-art .ink-stroke,
+.intro-fly-art .ink-stroke path,
+.intro-fly-art .ink-stroke ellipse {
+  stroke-width: 2.6;
+}
+
+.intro-fly-art .ink-hair {
+  stroke-width: 1.4;
+}
+
+.intro-fly-art {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ---------- the edition, covering the lens ---------- */
+
+#speed path {
+  stroke-width: 4.5;
+  opacity: 0.55;
+}
+
+.intro-fold {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  opacity: 0;
+  visibility: hidden;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.fold-half {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  overflow: hidden;
+  backface-visibility: hidden;
+  background: rgb(var(--paper));
+  box-shadow: 0 40px 90px -30px rgb(0 0 0 / 0.7);
+  will-change: transform;
+}
+
+.fold-half--l {
+  left: 0;
+  transform-origin: left center;
+}
+
+.fold-half--r {
+  left: 50%;
+  transform-origin: right center;
+}
+
+/* the fold itself, creased down the middle of the sheet */
+.fold-half--l::after,
+.fold-half--r::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 42px;
+  pointer-events: none;
+}
+
+.fold-half--l::after {
+  right: 0;
+  background: linear-gradient(to right, transparent, rgb(0 0 0 / 0.16));
+}
+
+.fold-half--r::after {
+  left: 0;
+  background: linear-gradient(to left, transparent, rgb(0 0 0 / 0.16));
+}
+
+.fold-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+}
+
+.fold-inner--r {
+  left: -100%;
+}
+
+.fold-page {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5vh;
+  padding: 4vh 6vw;
+  color: rgb(var(--ink));
+  text-align: center;
+}
+
+.fold-rule-top {
+  width: 100%;
+  border-top: 4px solid rgb(var(--rule));
+  border-bottom: 1px solid rgb(var(--rule));
+  height: 7px;
+}
+
+.fold-vol {
+  font-family: var(--font-cond), sans-serif;
+  font-size: clamp(0.55rem, 1.1vw, 0.8rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--faded));
+}
+
+.fold-masthead {
+  font-family: var(--font-masthead), serif;
+  font-size: clamp(2.4rem, 8.2vw, 7.5rem);
+  line-height: 0.9;
+  letter-spacing: 0.01em;
+}
+
+.fold-rule-mid {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.8rem;
+  color: rgb(var(--faded));
+}
+
+.fold-rule-mid::before,
+.fold-rule-mid::after {
+  content: "";
+  flex: 1;
+  border-top: 3px solid rgb(var(--rule));
+  border-bottom: 1px solid rgb(var(--rule));
+  height: 5px;
+}
+
+.fold-rule-mid span {
+  font-family: var(--font-cond), sans-serif;
+  font-size: clamp(0.6rem, 1.3vw, 0.95rem);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.fold-hed {
+  font-family: var(--font-hed), serif;
+  font-weight: 900;
+  font-size: clamp(1.9rem, 6.4vw, 5.4rem);
+  line-height: 0.94;
+  text-transform: uppercase;
+}
+
+.fold-dek {
+  font-family: var(--font-body), serif;
+  font-style: italic;
+  font-size: clamp(0.75rem, 1.7vw, 1.2rem);
+  color: rgb(var(--faded));
+  max-width: 46ch;
+}
+
+/* three columns of set type, suggested rather than printed */
+.fold-cols {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.6vw;
+  width: min(78%, 60rem);
+  margin-top: 1vh;
+}
+
+.fold-cols span {
+  height: clamp(2.4rem, 7vh, 5rem);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgb(var(--ink) / 0.5) 0 1.5px,
+    transparent 1.5px 7px
+  );
+  opacity: 0.5;
+}
+
+.fold-foot {
+  font-family: var(--font-cond), sans-serif;
+  font-size: clamp(0.55rem, 1.1vw, 0.8rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--faded));
+  margin-top: 1vh;
+}
+
+.fold-stamp {
+  position: absolute;
+  right: 8vw;
+  bottom: 12vh;
+  z-index: 4;
+  padding: 0.4rem 1.4rem;
+  border: 4px double rgb(var(--spot));
+  color: rgb(var(--spot));
+  font-family: var(--font-cond), sans-serif;
+  font-size: clamp(0.9rem, 2.6vw, 2rem);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: rotate(-8deg);
+}
+
+/* ---------- the way out ---------- */
+
+.intro-skip {
+  position: absolute;
+  right: max(1rem, 3vw);
+  top: max(1rem, 3vh);
+  z-index: 12;
+  border: 2px solid rgb(var(--rule));
+  background: rgb(var(--paper) / 0.86);
+  padding: 0.42rem 0.9rem;
+  font-family: var(--font-cond), sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--ink));
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.intro-skip:hover {
+  background: rgb(var(--ink));
+  color: rgb(var(--paper));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-reel {
+    display: none;
+  }
+}
+
+@media print {
+  .intro-reel {
+    display: none !important;
   }
 }

@@ -1,4 +1,5 @@
 import { PaperSite } from "@/components/edition/paper-site";
+import { IntroReel } from "@/components/intro/intro-reel";
 import { profile } from "@/data/profile";
 import { getGithubPortfolio } from "@/lib/github";
 import { printedOn } from "@/lib/press";
@@ -16,6 +17,7 @@ export default async function HomePage() {
         repositories and contact, printed across twelve pages.
       </h1>
       <PaperSite github={github} printedOn={printedOn()} />
+      <IntroReel printedOn={printedOn()} />
     </>
   );
 }
