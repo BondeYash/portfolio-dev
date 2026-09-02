@@ -42,10 +42,10 @@ const clamp = (value: number) => Math.min(1, Math.max(0, value));
 
 /** The moving parts of one leaf, looked up at mount instead of every frame. */
 type LeafParts = {
-  front: HTMLElement | null;
-  back: HTMLElement | null;
   frontShade: HTMLElement | null;
   backShade: HTMLElement | null;
+  frontSheen: HTMLElement | null;
+  backSheen: HTMLElement | null;
 };
 
 /**
@@ -242,30 +242,25 @@ export function Flipbook({
       const parts = partsRef.current[index];
       if (!parts) return;
 
-      /* Paper bows as it turns, so it reads narrower than it is. Squashing
-         each face towards the spine fakes that curl without bending any
-         geometry — and stays a composited transform, so it costs nothing. */
-      const squash = 1 - fold * 0.075;
-      const inset = ((1 - squash) * 50).toFixed(3);
-      const scale = squash.toFixed(4);
-      if (parts.front) {
-        parts.front.style.transform = `translateX(-${inset}%) scaleX(${scale})`;
-      }
-      if (parts.back) {
-        parts.back.style.transform = `rotateY(180deg) translateX(${inset}%) scaleX(${scale})`;
-      }
-
-      /* Light travels across the sheet as it swings, instead of the whole
-         face simply darkening. */
+      /* Light travels across the sheet as it swings, rather than the whole
+         face simply darkening. The band is a child that slides under a
+         clip: a transform the compositor can carry, where animating
+         background-position would repaint a full page every frame. */
       if (parts.frontShade) {
         parts.frontShade.style.opacity = String(clamp(p * 1.9) * 0.8);
-        parts.frontShade.style.backgroundPositionX = `${(p * 100).toFixed(1)}%`;
+      }
+      if (parts.frontSheen) {
+        parts.frontSheen.style.transform = `translate3d(${(-p * 50).toFixed(
+          2,
+        )}%,0,0)`;
       }
       if (parts.backShade) {
         parts.backShade.style.opacity = String(clamp((1 - p) * 1.9) * 0.8);
-        parts.backShade.style.backgroundPositionX = `${(100 - p * 100).toFixed(
-          1,
-        )}%`;
+      }
+      if (parts.backSheen) {
+        parts.backSheen.style.transform = `translate3d(${(
+          -(1 - p) * 50
+        ).toFixed(2)}%,0,0)`;
       }
 
       const cast = castRef.current;
@@ -288,8 +283,6 @@ export function Flipbook({
         el.style.zIndex = String(zFor(i, flippedCount));
         const parts = partsRef.current[i];
         if (!parts) continue;
-        if (parts.front) parts.front.style.transform = "";
-        if (parts.back) parts.back.style.transform = "rotateY(180deg)";
         if (parts.frontShade) parts.frontShade.style.opacity = "0";
         if (parts.backShade) parts.backShade.style.opacity = "0";
       }
@@ -433,6 +426,16 @@ export function Flipbook({
     },
     [leafCount, paint, settle],
   );
+
+  /* In development, ?turn=0.45 freezes the first leaf mid-fold so the
+     shading and the sharpness of the type can be looked at directly. */
+  useIsomorphicLayoutEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+    const at = new URLSearchParams(window.location.search).get("turn");
+    if (!at) return;
+    const id = window.setTimeout(() => paint(0, parseFloat(at), true), 60);
+    return () => window.clearTimeout(id);
+  }, [paint, size]);
 
   /* ---------- keyboard ------------------------------------------ */
 
@@ -662,10 +665,10 @@ export function Flipbook({
                 leafRefs.current[index] = node;
                 partsRef.current[index] = node
                   ? {
-                      front: node.querySelector("[data-face='front']"),
-                      back: node.querySelector("[data-face='back']"),
                       frontShade: node.querySelector("[data-shade='front']"),
                       backShade: node.querySelector("[data-shade='back']"),
+                      frontSheen: node.querySelector("[data-sheen='front']"),
+                      backSheen: node.querySelector("[data-sheen='back']"),
                     }
                   : null;
               }}
@@ -676,19 +679,25 @@ export function Flipbook({
                 left: spread ? size.w : 0,
               }}
             >
-              <div data-face="front" className="leaf-face shadow-leaf">
+              <div className="leaf-face shadow-leaf">
                 <PageCanvas page={leaf.front} scale={size.scale} />
-                <div
-                  data-shade="front"
-                  className="leaf-shade leaf-shade--front"
-                />
+                <div data-shade="front" className="leaf-shade">
+                  <i
+                    data-sheen="front"
+                    aria-hidden="true"
+                    className="leaf-sheen leaf-sheen--front"
+                  />
+                </div>
               </div>
-              <div
-                data-face="back"
-                className="leaf-face leaf-face--back shadow-leaf"
-              >
+              <div className="leaf-face leaf-face--back shadow-leaf">
                 <PageCanvas page={leaf.back} scale={size.scale} />
-                <div data-shade="back" className="leaf-shade leaf-shade--back" />
+                <div data-shade="back" className="leaf-shade">
+                  <i
+                    data-sheen="back"
+                    aria-hidden="true"
+                    className="leaf-sheen leaf-sheen--back"
+                  />
+                </div>
               </div>
             </div>
           ))}

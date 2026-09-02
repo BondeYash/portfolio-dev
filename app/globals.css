@@ -481,7 +481,6 @@ body {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   background: rgb(var(--paper));
@@ -492,42 +491,51 @@ body {
   transform: rotateY(180deg);
 }
 
-/* shading that sweeps across a turning leaf */
-/* Twice the width of the face, so sliding the position sweeps the light
-   across the sheet as it swings instead of just fading it out. */
+/* Shading that sweeps across a turning leaf.
+   The band is twice the width of the face and slides under this clip, so
+   the sweep is a transform the compositor carries. Opacity and transform
+   are the only two things animated here; anything else would repaint a
+   full page on every frame of every turn. */
 .leaf-shade {
   position: absolute;
   inset: 0;
+  overflow: hidden;
   pointer-events: none;
   z-index: 6;
   opacity: 0;
-  background-size: 200% 100%;
-  background-repeat: no-repeat;
-  background-position: 0% 0;
-  will-change: opacity, background-position;
+  will-change: opacity;
 }
 
-.leaf-shade--front {
+.leaf-sheen {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  will-change: transform;
+}
+
+.leaf-sheen--front {
   background-image: linear-gradient(
-    to left,
-    rgb(0 0 0 / 0.58) 0%,
-    rgb(0 0 0 / 0.24) 20%,
-    rgb(255 255 255 / 0.15) 38%,
-    rgb(0 0 0 / 0.13) 58%,
-    rgb(0 0 0 / 0.03) 80%,
-    transparent 100%
+    to right,
+    transparent 0%,
+    rgb(0 0 0 / 0.06) 18%,
+    rgb(255 255 255 / 0.16) 30%,
+    rgb(0 0 0 / 0.22) 42%,
+    rgb(0 0 0 / 0.5) 50%,
+    rgb(0 0 0 / 0.5) 100%
   );
 }
 
-.leaf-shade--back {
+.leaf-sheen--back {
   background-image: linear-gradient(
-    to right,
-    rgb(0 0 0 / 0.58) 0%,
-    rgb(0 0 0 / 0.24) 20%,
-    rgb(255 255 255 / 0.15) 38%,
-    rgb(0 0 0 / 0.13) 58%,
-    rgb(0 0 0 / 0.03) 80%,
-    transparent 100%
+    to left,
+    transparent 0%,
+    rgb(0 0 0 / 0.06) 18%,
+    rgb(255 255 255 / 0.16) 30%,
+    rgb(0 0 0 / 0.22) 42%,
+    rgb(0 0 0 / 0.5) 50%,
+    rgb(0 0 0 / 0.5) 100%
   );
 }
 
