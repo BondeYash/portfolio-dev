@@ -9,9 +9,16 @@ const fromVercel =
   process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ??
   process.env.VERCEL_PROJECT_PRODUCTION_URL;
 
+/** The live domain. An env var still wins, for previews and forks. */
+const PRODUCTION = "https://yashb.dev";
+
 export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL ??
-  (fromVercel ? `https://${fromVercel}` : "http://localhost:3000")
+  (process.env.NODE_ENV === "production"
+    ? PRODUCTION
+    : fromVercel
+      ? `https://${fromVercel}`
+      : "http://localhost:3000")
 ).replace(/\/+$/, "");
 
 /** True once the site is answering on a real domain, not a dev machine. */
