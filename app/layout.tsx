@@ -7,6 +7,7 @@ import {
   Special_Elite,
 } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { StructuredData } from "@/components/seo/structured-data";
 import { profile, skillKeywords } from "@/data/profile";
 import "./globals.css";
 
@@ -47,31 +48,43 @@ const typewriter = Special_Elite({
   variable: "--font-type",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+import { siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `Yash Times | ${profile.fullName}, ${profile.role}`,
-    template: `%s | Yash Times`,
+    default: `${profile.fullName} — ${profile.role} in Surat | Yash Times`,
+    template: `%s | ${profile.fullName}`,
   },
   description: profile.subheading,
   keywords: [...skillKeywords, "newspaper portfolio", "full stack developer"],
   authors: [{ name: profile.fullName, url: profile.github }],
   openGraph: {
-    title: `Yash Times | ${profile.fullName}`,
+    title: `${profile.fullName} — ${profile.role}`,
     description: profile.subheading,
-    url: siteUrl,
+    url: "/",
     siteName: "Yash Times",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: `Yash Times | ${profile.fullName}`,
+    title: `${profile.fullName} — ${profile.role}`,
     description: profile.subheading,
   },
-  robots: { index: true, follow: true },
+  alternates: { canonical: "/" },
+  creator: profile.fullName,
+  publisher: profile.fullName,
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export const viewport: Viewport = {
@@ -94,6 +107,10 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: editionBootScript }} />
+        {/* The accounts that are already this person, claimed from the page. */}
+        <link rel="me" href={profile.github} />
+        <link rel="me" href={profile.linkedin} />
+        <StructuredData />
       </head>
       <body className="newsprint flex min-h-screen flex-col font-body antialiased">
         <div aria-hidden="true" className="fiber pointer-events-none fixed inset-0 z-[3]" />

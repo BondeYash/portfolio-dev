@@ -105,9 +105,11 @@ export function buildEditionPages(github: GithubPayload): EditionPage[] {
                 <span className="pg-slug">{paper.number}</span>
               </div>
               <div className="mt-1 border-b-2 border-rule" />
-              <h1 className="masthead cover-title py-1.5 text-center text-[3rem] leading-[0.84]">
+              {/* The nameplate is the paper's brand, not the page's heading:
+                  the one h1 on the document carries the person's name. */}
+              <p className="masthead cover-title py-1.5 text-center text-[3rem] leading-[0.84]">
                 {paper.title}
-              </h1>
+              </p>
               <div className="border-b-2 border-rule" />
               <p className="pg-slug pt-1 text-center">
                 {paper.city} &middot; {paper.motto}
