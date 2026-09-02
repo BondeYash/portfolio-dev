@@ -671,7 +671,7 @@ body {
 
 /* ============================================================
    THE DELIVERY — opening reel
-   One plate of line work over flat stock, animated as transforms.
+   A short film, then the sheet it ends on, opened by hand.
    ============================================================ */
 
 .intro-reel {
@@ -699,7 +699,7 @@ body {
     transparent 1.2px
   );
   background-size: 4px 4px;
-  opacity: 0.15;
+  opacity: 0.12;
   mix-blend-mode: multiply;
 }
 
@@ -711,7 +711,7 @@ body {
   z-index: 9;
   pointer-events: none;
   background-image: theme("backgroundImage.newsprint");
-  opacity: 0.16;
+  opacity: 0.13;
   animation: reel-grain 0.5s steps(3) infinite;
 }
 
@@ -730,274 +730,29 @@ body {
   }
 }
 
-.intro-plate {
+.intro-video {
   position: absolute;
   inset: 0;
+  z-index: 2;
   width: 100%;
   height: 100%;
-  z-index: 2;
-  box-shadow: inset 0 0 200px 40px rgb(var(--rule) / 0.22);
+  object-fit: cover;
+  object-position: center;
+  background: rgb(var(--stock));
 }
 
-/* ---------- the ink ---------- */
-
-.ink-stroke,
-.ink-stroke path,
-.ink-stroke circle,
-.ink-stroke ellipse {
-  fill: none;
-  stroke: rgb(var(--ink));
-  stroke-width: 5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.ink-hair,
-.ink-hair path {
-  fill: none;
-  stroke: rgb(var(--ink));
-  stroke-width: 2;
-  stroke-linecap: round;
-  opacity: 0.8;
-}
-
-.ink-fill,
-.ink-fill * {
-  fill: rgb(var(--ink));
-  stroke: none;
-}
-
-.ink-fill .win {
-  fill: rgb(var(--stock));
-  opacity: 0.75;
-}
-
-.stock-fill {
-  fill: rgb(var(--stock));
-}
-
-.road-fill {
-  fill: rgb(var(--press));
-  opacity: 0.2;
-}
-
-.ink-fill .glow {
-  fill: url(#lamp-glow);
-}
-
-.paper-fill {
-  fill: rgb(var(--paper));
-}
-
-.face-fill {
-  fill: rgb(var(--paper));
-}
-
-.spot-fill {
-  fill: rgb(var(--spot));
-}
-
-.hair-fill {
-  fill: rgb(var(--ink));
-}
-
-.cap-fill {
-  fill: rgb(var(--press));
-  stroke: rgb(var(--ink));
-  stroke-width: 3.5;
-  stroke-linejoin: round;
-}
-
-/* Limbs and body are drawn as strokes: a dark one, then a lighter one on
-   top of it. That is how the plate would have been cut, and it keeps the
-   figure readable at any size. */
-.body-out {
-  fill: none;
-  stroke: rgb(var(--ink));
-  stroke-width: 58;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.body-in {
-  fill: none;
-  stroke: rgb(var(--paper));
-  stroke-width: 46;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.neck.body-out {
-  stroke-width: 36;
-}
-
-.neck.body-in {
-  stroke-width: 26;
-}
-
-.sleeve.body-out {
-  stroke-width: 34;
-}
-
-.sleeve.body-in {
-  stroke-width: 24;
-}
-
-.skin-out {
-  fill: none;
-  stroke: rgb(var(--ink));
-  stroke-width: 27;
-  stroke-linecap: round;
-}
-
-.skin-in {
-  fill: none;
-  stroke: rgb(var(--paper));
-  stroke-width: 19;
-  stroke-linecap: round;
-}
-
-.trouser {
-  fill: none;
-  stroke: rgb(var(--ink));
-  stroke-width: 62;
-  stroke-linecap: round;
-}
-
-.face-line {
-  stroke: rgb(var(--ink));
-  stroke-width: 4;
-}
-
-.cuff {
-  stroke-width: 5;
-}
-
-.collar {
-  stroke-width: 4;
-}
-
-.shirt-fill {
-  fill: rgb(var(--paper));
-}
-
-.trouser-fill {
-  fill: rgb(var(--ink));
-  opacity: 0.92;
-}
-
-.leather-fill {
-  fill: rgb(var(--press));
-  stroke: rgb(var(--ink));
-  stroke-width: 4;
-}
-
-.flap {
-  opacity: 0.82;
-}
-
-.strap {
-  stroke-width: 9;
-}
-
-.braces {
-  stroke-width: 4;
-}
-
-.smile {
-  stroke-width: 4;
-}
-
-circle.tyre {
-  stroke-width: 10;
-}
-
-.frame path {
-  stroke-width: 7;
-}
-
-.bar {
-  stroke-width: 7;
-}
-
-.spokes path {
-  stroke-width: 1.6;
-  opacity: 0.6;
-}
-
-.limb-near path {
-  fill: none;
-  stroke: rgb(var(--ink));
-  stroke-width: 30;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.limb-near .shoe {
-  fill: rgb(var(--ink));
-  stroke-width: 4;
-}
-
-.limb-far path {
-  fill: none;
-  stroke: rgb(var(--faded));
-  stroke-width: 26;
-  stroke-linecap: round;
-  opacity: 0.7;
-}
-
-.limb {
-  stroke-width: 14;
-}
-
-.bag-mark {
-  fill: rgb(var(--paper));
-  font-family: var(--font-type), monospace;
-  font-size: 20px;
-  letter-spacing: 0.04em;
-  opacity: 0.9;
-}
-
-/* ---------- the edition in flight ---------- */
-
-/* Drawn large and scaled down, not small and scaled up: the sheet has to
-   stay sharp when it fills the screen. No will-change here on purpose —
-   the layer must re-rasterise as it grows. */
-.intro-fly {
+/* the type, over the held frame — same geometry as the copy inside the
+   sheet, so the handoff from film to paper has nothing to see */
+.intro-typelayer {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  inset: 0;
   z-index: 6;
-  width: 1160px;
-  height: 330px;
-  margin: -165px 0 0 -580px;
   opacity: 0;
   visibility: hidden;
-  filter: drop-shadow(0 18px 26px rgb(0 0 0 / 0.35));
+  pointer-events: none;
 }
 
-.intro-fly-art .ink-stroke,
-.intro-fly-art .ink-stroke path,
-.intro-fly-art .ink-stroke ellipse {
-  stroke-width: 2.6;
-}
-
-.intro-fly-art .ink-hair {
-  stroke-width: 1.4;
-}
-
-.intro-fly-art {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-/* ---------- the edition, covering the lens ---------- */
-
-#speed path {
-  stroke-width: 4.5;
-  opacity: 0.55;
-}
+/* ---------- the sheet, in two halves ---------- */
 
 .intro-fold {
   position: absolute;
@@ -1031,7 +786,7 @@ circle.tyre {
   transform-origin: right center;
 }
 
-/* the fold itself, creased down the middle of the sheet */
+/* the crease down the middle of the sheet */
 .fold-half--l::after,
 .fold-half--r::after {
   content: "";
@@ -1039,6 +794,7 @@ circle.tyre {
   top: 0;
   bottom: 0;
   width: 42px;
+  z-index: 5;
   pointer-events: none;
 }
 
@@ -1064,17 +820,42 @@ circle.tyre {
   left: -100%;
 }
 
-.fold-page {
+/* the frame the reel ended on, held still and cut in two */
+.fold-plate {
+  position: absolute;
+  inset: 0;
+  background-image: url("/intro/last-frame.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* ---------- the type struck onto the sheet ---------- */
+
+.cover-type {
+  position: absolute;
+  inset: 0;
   display: flex;
-  height: 100%;
-  width: 100%;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5vh;
-  padding: 4vh 6vw;
+  justify-content: space-between;
   color: rgb(var(--ink));
   text-align: center;
+}
+
+.cover-type-top,
+.cover-type-foot {
+  background: rgb(var(--paper) / 0.94);
+  box-shadow: 0 0 34px 12px rgb(var(--paper) / 0.7);
+  padding: 2.4vh 6vw;
+}
+
+.cover-type-top {
+  border-bottom: 3px solid rgb(var(--rule));
+}
+
+.cover-type-foot {
+  border-top: 3px solid rgb(var(--rule));
+  padding-bottom: 3.4vh;
 }
 
 .fold-rule-top {
@@ -1085,6 +866,7 @@ circle.tyre {
 }
 
 .fold-vol {
+  margin-top: 0.6vh;
   font-family: var(--font-cond), sans-serif;
   font-size: clamp(0.55rem, 1.1vw, 0.8rem);
   letter-spacing: 0.18em;
@@ -1094,8 +876,8 @@ circle.tyre {
 
 .fold-masthead {
   font-family: var(--font-masthead), serif;
-  font-size: clamp(2.4rem, 8.2vw, 7.5rem);
-  line-height: 0.9;
+  font-size: clamp(2.2rem, 7.4vw, 6.6rem);
+  line-height: 0.92;
   letter-spacing: 0.01em;
 }
 
@@ -1104,6 +886,7 @@ circle.tyre {
   width: 100%;
   align-items: center;
   gap: 0.8rem;
+  margin-top: 0.4vh;
   color: rgb(var(--faded));
 }
 
@@ -1127,61 +910,33 @@ circle.tyre {
 .fold-hed {
   font-family: var(--font-hed), serif;
   font-weight: 900;
-  font-size: clamp(1.9rem, 6.4vw, 5.4rem);
+  font-size: clamp(1.7rem, 5.6vw, 4.6rem);
   line-height: 0.94;
   text-transform: uppercase;
 }
 
 .fold-dek {
+  margin-top: 0.8vh;
   font-family: var(--font-body), serif;
   font-style: italic;
-  font-size: clamp(0.75rem, 1.7vw, 1.2rem);
+  font-size: clamp(0.72rem, 1.6vw, 1.15rem);
   color: rgb(var(--faded));
-  max-width: 46ch;
-}
-
-/* three columns of set type, suggested rather than printed */
-.fold-cols {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.6vw;
-  width: min(78%, 60rem);
-  margin-top: 1vh;
-}
-
-.fold-cols span {
-  height: clamp(2.4rem, 7vh, 5rem);
-  background-image: repeating-linear-gradient(
-    to bottom,
-    rgb(var(--ink) / 0.5) 0 1.5px,
-    transparent 1.5px 7px
-  );
-  opacity: 0.5;
-}
-
-.fold-foot {
-  font-family: var(--font-cond), sans-serif;
-  font-size: clamp(0.55rem, 1.1vw, 0.8rem);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgb(var(--faded));
-  margin-top: 1vh;
 }
 
 .fold-stamp {
   position: absolute;
-  right: 8vw;
-  bottom: 12vh;
+  right: 7vw;
+  top: 50%;
   z-index: 4;
   padding: 0.4rem 1.4rem;
   border: 4px double rgb(var(--spot));
   color: rgb(var(--spot));
   font-family: var(--font-cond), sans-serif;
-  font-size: clamp(0.9rem, 2.6vw, 2rem);
+  font-size: clamp(0.9rem, 2.4vw, 1.9rem);
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  opacity: 0;
-  transform: rotate(-8deg);
+  transform: translateY(-50%) rotate(-8deg);
+  opacity: 0.9;
 }
 
 /* ---------- the way out ---------- */
