@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   gsap,
   prefersReducedMotion,
@@ -39,6 +39,35 @@ function buildLeaves(pages: EditionPage[], spread: boolean): Leaf[] {
 }
 
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
+
+/** The moving parts of one leaf, looked up at mount instead of every frame. */
+type LeafParts = {
+  front: HTMLElement | null;
+  back: HTMLElement | null;
+  frontShade: HTMLElement | null;
+  backShade: HTMLElement | null;
+};
+
+/**
+ * Paper does not turn at a constant rate. A thumb lifts the corner slowly,
+ * gravity takes the sheet through the vertical, and the leaf lands a little
+ * past flat and flutters down. GSAP accepts a plain function as an ease, so
+ * the whole curve is written out here rather than approximated by a preset.
+ */
+const SLAP = 1.03;
+const FLUTTER_AT = 0.76;
+
+function paperEase(t: number): number {
+  if (t <= 0) return 0;
+  if (t >= 1) return 1;
+  if (t < FLUTTER_AT) {
+    const u = t / FLUTTER_AT;
+    const swing = u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+    return swing * SLAP;
+  }
+  const u = (t - FLUTTER_AT) / (1 - FLUTTER_AT);
+  return 1 + (SLAP - 1) * Math.cos(u * Math.PI * 2.15) * Math.exp(-u * 4.4);
+}
 
 /* ---------- paper sound, synthesised (no audio files) ------------ */
 
@@ -99,6 +128,9 @@ export function Flipbook({
   const bookRef = useRef<HTMLDivElement>(null);
   const leafRefs = useRef<Array<HTMLDivElement | null>>([]);
   const castRef = useRef<HTMLDivElement>(null);
+  const partsRef = useRef<Array<LeafParts | null>>([]);
+  /** How far the top corner is lifted by a hovering hand. */
+  const peekRef = useRef({ p: 0 });
 
   const [spread, setSpread] = useState(true);
   const [size, setSize] = useState({ w: DESIGN_W, h: DESIGN_H, scale: 1 });
@@ -112,6 +144,9 @@ export function Flipbook({
     dir: 1 | -1;
     startX: number;
     progress: number;
+    lastX: number;
+    lastT: number;
+    vx: number;
   } | null>(null);
 
   const leaves = useMemo(() => buildLeaves(pages, spread), [pages, spread]);
@@ -187,9 +222,16 @@ export function Flipbook({
     (index: number, progress: number, raised: boolean, stackOffset = 0) => {
       const el = leafRefs.current[index];
       if (!el) return;
-      const lift = Math.sin(progress * Math.PI);
-      el.style.transform = `rotateY(${-180 * progress}deg) translateZ(${(
-        lift * 52
+      const p = clamp(progress);
+      /* How far off the flat the sheet is: 0 lying down, 1 stood on edge. */
+      const fold = Math.sin(p * Math.PI);
+      /* The corner rises early and drops late, the way a thumbed page does. */
+      const lift = Math.sin(Math.pow(p, 0.82) * Math.PI);
+
+      el.style.transform = `rotateY(${(-180 * progress).toFixed(
+        2,
+      )}deg) rotateZ(${(fold * 1.15).toFixed(2)}deg) translateZ(${(
+        lift * 58
       ).toFixed(2)}px)`;
       el.style.zIndex = String(
         raised
@@ -197,13 +239,39 @@ export function Flipbook({
           : zFor(index, flippedRef.current),
       );
 
-      const front = el.querySelector<HTMLElement>("[data-shade='front']");
-      const back = el.querySelector<HTMLElement>("[data-shade='back']");
-      if (front) front.style.opacity = String(clamp(progress * 1.7) * 0.85);
-      if (back) back.style.opacity = String(clamp((1 - progress) * 1.7) * 0.85);
+      const parts = partsRef.current[index];
+      if (!parts) return;
 
-      if (castRef.current) {
-        castRef.current.style.opacity = String(lift * 0.4);
+      /* Paper bows as it turns, so it reads narrower than it is. Squashing
+         each face towards the spine fakes that curl without bending any
+         geometry — and stays a composited transform, so it costs nothing. */
+      const squash = 1 - fold * 0.075;
+      const inset = ((1 - squash) * 50).toFixed(3);
+      const scale = squash.toFixed(4);
+      if (parts.front) {
+        parts.front.style.transform = `translateX(-${inset}%) scaleX(${scale})`;
+      }
+      if (parts.back) {
+        parts.back.style.transform = `rotateY(180deg) translateX(${inset}%) scaleX(${scale})`;
+      }
+
+      /* Light travels across the sheet as it swings, instead of the whole
+         face simply darkening. */
+      if (parts.frontShade) {
+        parts.frontShade.style.opacity = String(clamp(p * 1.9) * 0.8);
+        parts.frontShade.style.backgroundPositionX = `${(p * 100).toFixed(1)}%`;
+      }
+      if (parts.backShade) {
+        parts.backShade.style.opacity = String(clamp((1 - p) * 1.9) * 0.8);
+        parts.backShade.style.backgroundPositionX = `${(100 - p * 100).toFixed(
+          1,
+        )}%`;
+      }
+
+      const cast = castRef.current;
+      if (cast) {
+        cast.style.opacity = String(fold * 0.42);
+        cast.style.transform = `scaleX(${(0.28 + 0.72 * p).toFixed(3)})`;
       }
     },
     [leafCount, zFor],
@@ -216,12 +284,14 @@ export function Flipbook({
         const el = leafRefs.current[i];
         if (!el) continue;
         const progress = i < flippedCount ? 1 : 0;
-        el.style.transform = `rotateY(${-180 * progress}deg) translateZ(0px)`;
+        el.style.transform = `rotateY(${-180 * progress}deg) rotateZ(0deg) translateZ(0px)`;
         el.style.zIndex = String(zFor(i, flippedCount));
-        const front = el.querySelector<HTMLElement>("[data-shade='front']");
-        const back = el.querySelector<HTMLElement>("[data-shade='back']");
-        if (front) front.style.opacity = "0";
-        if (back) back.style.opacity = "0";
+        const parts = partsRef.current[i];
+        if (!parts) continue;
+        if (parts.front) parts.front.style.transform = "";
+        if (parts.back) parts.back.style.transform = "rotateY(180deg)";
+        if (parts.frontShade) parts.frontShade.style.opacity = "0";
+        if (parts.backShade) parts.backShade.style.opacity = "0";
       }
       if (castRef.current) castRef.current.style.opacity = "0";
     },
@@ -261,6 +331,8 @@ export function Flipbook({
 
       busyRef.current = true;
       el.style.zIndex = String(leafCount * 2 + 10);
+      gsap.killTweensOf(peekRef.current);
+      peekRef.current.p = 0;
       rustle();
 
       if (prefersReducedMotion()) {
@@ -273,8 +345,8 @@ export function Flipbook({
       const proxy = { p: dir === 1 ? 0 : 1 };
       gsap.to(proxy, {
         p: dir === 1 ? 1 : 0,
-        duration: 1.02,
-        ease: "power2.inOut",
+        duration: 0.94,
+        ease: paperEase,
         onUpdate: () => paint(index, proxy.p, true),
         onComplete: () => {
           flippedRef.current += dir;
@@ -327,18 +399,39 @@ export function Flipbook({
           proxy,
           {
             p: dir === 1 ? 1 : 0,
-            duration: 0.62,
-            ease: "power2.inOut",
+            duration: 0.66,
+            ease: "power3.inOut",
             onUpdate: () => paint(index, proxy.p, true, order),
           },
-          order * 0.16,
+          order * 0.13,
         );
         if (order > 0) {
-          timeline.call(rustle, undefined, order * 0.16);
+          timeline.call(rustle, undefined, order * 0.13);
         }
       });
     },
     [leafCount, paint, rustle, turn],
+  );
+
+  /* ---------- the corner curls under a hovering hand ------------- */
+
+  const peek = useCallback(
+    (value: number) => {
+      if (busyRef.current || dragRef.current || prefersReducedMotion()) return;
+      const index = flippedRef.current;
+      if (index < 0 || index >= leafCount) return;
+      gsap.killTweensOf(peekRef.current);
+      gsap.to(peekRef.current, {
+        p: value,
+        duration: value > 0 ? 0.34 : 0.5,
+        ease: value > 0 ? "power3.out" : "power2.inOut",
+        onUpdate: () => paint(index, peekRef.current.p, true),
+        onComplete: () => {
+          if (value === 0 && !busyRef.current) settle(flippedRef.current);
+        },
+      });
+    },
+    [leafCount, paint, settle],
   );
 
   /* ---------- keyboard ------------------------------------------ */
@@ -382,11 +475,16 @@ export function Flipbook({
       const leafEl = leafRefs.current[index];
       if (leafEl) leafEl.style.zIndex = String(leafCount * 2 + 10);
 
+      gsap.killTweensOf(peekRef.current);
+      peekRef.current.p = 0;
       dragRef.current = {
         leaf: index,
         dir,
         startX: event.clientX,
         progress: dir === 1 ? 0 : 1,
+        lastX: event.clientX,
+        lastT: event.timeStamp,
+        vx: 0,
       };
       book.setPointerCapture(event.pointerId);
     },
@@ -397,6 +495,13 @@ export function Flipbook({
     (event: React.PointerEvent<HTMLDivElement>) => {
       const drag = dragRef.current;
       if (!drag) return;
+      const dt = event.timeStamp - drag.lastT;
+      if (dt >= 4) {
+        /* Smoothed so one stuttery pointer event cannot fake a fling. */
+        drag.vx = 0.7 * ((event.clientX - drag.lastX) / dt) + 0.3 * drag.vx;
+        drag.lastX = event.clientX;
+        drag.lastT = event.timeStamp;
+      }
       const travel = (event.clientX - drag.startX) / size.w;
       const progress =
         drag.dir === 1 ? clamp(-travel) : clamp(1 - Math.max(0, travel));
@@ -417,16 +522,30 @@ export function Flipbook({
         drag.dir === 1 ? drag.progress > 0.02 : drag.progress < 0.98;
       if (!moved) return; // a plain click; the corner and buttons handle those
 
-      const commit = drag.dir === 1 ? drag.progress > 0.32 : drag.progress < 0.68;
+      /* Let go mid-turn and the sheet keeps going: a flick of the wrist
+         finishes the page even if it never crossed the halfway mark. */
+      const speed = Math.abs(drag.vx);
+      const fling = speed > 0.4 ? (drag.vx < 0 ? 1 : -1) : 0;
+      const commit =
+        fling !== 0
+          ? fling === drag.dir
+          : drag.dir === 1
+            ? drag.progress > 0.32
+            : drag.progress < 0.68;
       const end = commit ? (drag.dir === 1 ? 1 : 0) : drag.dir === 1 ? 0 : 1;
+      const remaining = Math.abs(end - drag.progress);
+      const duration = Math.min(
+        0.68,
+        Math.max(0.22, remaining * (speed > 0.4 ? 0.5 : 0.95)),
+      );
 
       busyRef.current = true;
       if (commit) rustle();
       const proxy = { p: drag.progress };
       gsap.to(proxy, {
         p: end,
-        duration: 0.5,
-        ease: "power2.out",
+        duration,
+        ease: commit ? "power2.out" : "power2.inOut",
         onUpdate: () => paint(drag.leaf, proxy.p, true),
         onComplete: () => {
           if (commit) {
@@ -477,8 +596,13 @@ export function Flipbook({
   const openPageId = visible[visible.length - 1]?.id;
   useEffect(() => {
     if (!syncHash || !openPageId) return;
-    const hash = openPageId === pages[0]?.id ? " " : `#${openPageId}`;
-    window.history.replaceState(null, "", hash === " " ? location.pathname : hash);
+    /* Keep the query — a referral or campaign tag must survive the turn. */
+    const first = openPageId === pages[0]?.id;
+    window.history.replaceState(
+      null,
+      "",
+      first ? location.pathname + location.search : `#${openPageId}`,
+    );
   }, [openPageId, pages, syncHash]);
 
   return (
@@ -536,6 +660,14 @@ export function Flipbook({
               key={leaf.front?.id ?? leaf.back?.id ?? index}
               ref={(node) => {
                 leafRefs.current[index] = node;
+                partsRef.current[index] = node
+                  ? {
+                      front: node.querySelector("[data-face='front']"),
+                      back: node.querySelector("[data-face='back']"),
+                      frontShade: node.querySelector("[data-shade='front']"),
+                      backShade: node.querySelector("[data-shade='back']"),
+                    }
+                  : null;
               }}
               className="leaf"
               style={{
@@ -544,14 +676,17 @@ export function Flipbook({
                 left: spread ? size.w : 0,
               }}
             >
-              <div className="leaf-face shadow-leaf">
+              <div data-face="front" className="leaf-face shadow-leaf">
                 <PageCanvas page={leaf.front} scale={size.scale} />
                 <div
                   data-shade="front"
                   className="leaf-shade leaf-shade--front"
                 />
               </div>
-              <div className="leaf-face leaf-face--back shadow-leaf">
+              <div
+                data-face="back"
+                className="leaf-face leaf-face--back shadow-leaf"
+              >
                 <PageCanvas page={leaf.back} scale={size.scale} />
                 <div data-shade="back" className="leaf-shade leaf-shade--back" />
               </div>
@@ -575,8 +710,10 @@ export function Flipbook({
               zIndex: leafCount * 2 + 5,
               left: 0,
               width: size.w,
+              transformOrigin: spread ? "right center" : "left center",
+              willChange: "transform, opacity",
               background:
-                "linear-gradient(to left, rgb(0 0 0 / 0.45), transparent 70%)",
+                "linear-gradient(to left, rgb(0 0 0 / 0.45), rgb(0 0 0 / 0.12) 34%, transparent 72%)",
             }}
           />
 
@@ -585,6 +722,14 @@ export function Flipbook({
             <button
               type="button"
               onClick={() => turn(1)}
+              onPointerEnter={(event) => {
+                if (event.pointerType === "mouse") peek(0.055);
+              }}
+              onPointerLeave={(event) => {
+                if (event.pointerType === "mouse") peek(0);
+              }}
+              onFocus={() => peek(0.055)}
+              onBlur={() => peek(0)}
               aria-label="Turn to the next page"
               className="peel no-print"
               style={{ zIndex: leafCount * 2 + 12 }}
@@ -681,7 +826,7 @@ export function Flipbook({
 
 /* ---------- a single printed page, composed then scaled ---------- */
 
-function PageCanvas({
+const PageCanvas = memo(function PageCanvas({
   page,
   scale,
 }: {
@@ -717,4 +862,4 @@ function PageCanvas({
       </div>
     </div>
   );
-}
+});
