@@ -73,6 +73,11 @@ export const metadata: Metadata = {
     description: profile.subheading,
   },
   alternates: { canonical: "/" },
+  /* Paste the token from Search Console into GOOGLE_SITE_VERIFICATION and the
+     meta tag appears; leave it unset and nothing is emitted. */
+  verification: process.env.GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+    : undefined,
   creator: profile.fullName,
   publisher: profile.fullName,
   robots: {
